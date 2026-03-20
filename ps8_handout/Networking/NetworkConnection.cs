@@ -2,6 +2,7 @@
 // Copyright (c) 2025 UofU-CS3500. All rights reserved.
 // </copyright>
 
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 namespace Networking;
@@ -26,6 +27,7 @@ public sealed class NetworkConnection : IDisposable
     ///   Writing end of the connection
     /// </summary>
     private StreamWriter? _writer;
+    
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="NetworkConnection"/> class.
@@ -65,8 +67,7 @@ public sealed class NetworkConnection : IDisposable
     {
         get
         {
-            // TODO: implement this
-            throw new NotImplementedException();
+          return _tcpClient.Connected;
         }
     }
 
@@ -78,8 +79,16 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
-        // TODO: implement this
-        throw new NotImplementedException();
+        var ip = IPAddress.Parse( host );
+        TcpListener clients = new( ip, port);
+        clients.Start();
+        //
+        // while (true)
+        // {
+        //     TcpClient client = listener.AcceptTcpClient();
+        //
+        //     // new Thread(() => client.Start());
+        // }
     }
 
 
@@ -94,8 +103,15 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="message"> The string of characters to send. </param>
     public void Send( string message )
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        try
+        {
+            _writer.WriteLine( message );
+            _writer.Flush();
+        }
+       catch(Exception)
+        {
+            throw new InvalidOperationException();
+        }
     }
 
 
@@ -108,8 +124,16 @@ public sealed class NetworkConnection : IDisposable
     /// <returns> The contents of the message. </returns>
     public string ReadLine( )
     {
-        // TODO: implement this
-        throw new NotImplementedException();
+        try
+        {
+            String msg = _reader?.ReadLine() ?? " ";
+            return msg;
+        }
+        catch (Exception)
+        {
+            throw new InvalidOperationException();
+        }
+        
     }
 
     /// <summary>
@@ -118,8 +142,12 @@ public sealed class NetworkConnection : IDisposable
     /// </summary>
     public void Disconnect( )
     {
-        //TODO: implement this
-        throw new NotImplementedException();
+        if (IsConnected)
+        {
+            _tcpClient.Close();
+            _reader?.Close();
+            _writer?.Close();
+		}
     }
 
     /// <summary>

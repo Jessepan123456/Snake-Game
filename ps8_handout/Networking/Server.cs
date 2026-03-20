@@ -22,7 +22,12 @@ public static class Server
     /// <param name="port"> The port (e.g., 11000) to listen on. </param>
     public static void StartServer( Action<NetworkConnection> handleConnect, int port )
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        
+        // NetworkConnection let = new NetworkConnection();
+        // let.Connect( port );
     }
+
+ 
 }
+
+
