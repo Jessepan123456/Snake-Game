@@ -103,12 +103,19 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="message"> The string of characters to send. </param>
     public void Send( string message )
     {
-        try
+        if (IsConnected)
         {
-            _writer.WriteLine( message );
-            _writer.Flush();
+            try
+            {
+                _writer.WriteLine( message );
+                _writer.Flush();
+            }
+            catch(Exception)
+            {
+                throw new InvalidOperationException();
+            }
         }
-       catch(Exception)
+        else
         {
             throw new InvalidOperationException();
         }
@@ -124,16 +131,22 @@ public sealed class NetworkConnection : IDisposable
     /// <returns> The contents of the message. </returns>
     public string ReadLine( )
     {
-        try
+        if (IsConnected)
         {
-            String msg = _reader?.ReadLine() ?? " ";
-            return msg;
+            try
+            {
+                String msg = _reader?.ReadLine() ?? " ";
+                return msg;
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException();
+            } 
         }
-        catch (Exception)
+        else
         {
             throw new InvalidOperationException();
         }
-        
     }
 
     /// <summary>
