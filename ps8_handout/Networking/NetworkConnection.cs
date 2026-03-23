@@ -79,16 +79,8 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
-        var ip = IPAddress.Parse( host );
-        TcpListener clients = new( ip, port);
-        clients.Start();
-        //
-        // while (true)
-        // {
-        //     TcpClient client = listener.AcceptTcpClient();
-        //
-        //     // new Thread(() => client.Start());
-        // }
+        TcpClient client = new TcpClient();
+        client.Connect( host, port );
     }
 
 
