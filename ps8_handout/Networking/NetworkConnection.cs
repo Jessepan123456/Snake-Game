@@ -79,8 +79,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
-        TcpClient client = new TcpClient();
-        client.Connect( host, port );
+        _tcpClient.Connect( host, port );
     }
 
 
@@ -102,14 +101,16 @@ public sealed class NetworkConnection : IDisposable
                 _writer.WriteLine( message );
                 _writer.Flush();
             }
-            catch(Exception)
+            catch(Exception e)
             {
-                throw new InvalidOperationException();
+               // throw new InvalidOperationException();
+               Console.WriteLine("fdsa" + e.Message);
             }
         }
         else
         {
-            throw new InvalidOperationException();
+          //  throw new InvalidOperationException();
+          Console.WriteLine("fdsa");
         }
     }
 
@@ -127,7 +128,7 @@ public sealed class NetworkConnection : IDisposable
         {
             try
             {
-                String msg = _reader?.ReadLine() ?? " ";
+                String? msg = _reader?.ReadLine()??"";
                 return msg;
             }
             catch (Exception)
@@ -149,9 +150,9 @@ public sealed class NetworkConnection : IDisposable
     {
         if (IsConnected)
         {
-            _tcpClient.Close();
             _reader?.Close();
             _writer?.Close();
+            _tcpClient.Close();
 		}
     }
 

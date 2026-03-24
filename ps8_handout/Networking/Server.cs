@@ -28,6 +28,7 @@ public static class Server
     {
         TcpListener listener = new( IPAddress.Any, port);
         listener.Start();
+
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();
@@ -44,13 +45,14 @@ public static class Server
     public static void HandleConnect(TcpClient client)
     {
         NetworkConnection clientConnection = new(client);
-
+        
         while (clientConnection.IsConnected)
         {
+            Console.Write("HI");
             string msg = clientConnection.ReadLine();
             Console.WriteLine("Message: " + msg);
             clientConnection.Send("Thanks for that message");
-
+        
         }
     }
     

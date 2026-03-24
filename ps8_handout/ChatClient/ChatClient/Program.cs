@@ -33,4 +33,5 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies( typeof( ChatClient.Client._Imports ).Assembly );
 
+app.MapStaticAssets();
 app.Run();
