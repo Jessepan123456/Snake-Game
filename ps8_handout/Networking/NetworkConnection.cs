@@ -80,6 +80,10 @@ public sealed class NetworkConnection : IDisposable
     public void Connect( string host, int port )
     {
         _tcpClient.Connect( host, port );
+        {
+            _reader = new StreamReader( _tcpClient.GetStream(), Encoding.UTF8 );
+            _writer = new StreamWriter( _tcpClient.GetStream(), Encoding.UTF8 ) { AutoFlush = true };
+        }
     }
 
 
@@ -94,7 +98,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="message"> The string of characters to send. </param>
     public void Send( string message )
     {
-        if (IsConnected)
+        if (IsConnected && _writer != null)
         {
             try
             {
@@ -103,14 +107,12 @@ public sealed class NetworkConnection : IDisposable
             }
             catch(Exception e)
             {
-               // throw new InvalidOperationException();
-               Console.WriteLine("fdsa" + e.Message);
+               throw new InvalidOperationException();
             }
         }
         else
         {
-          //  throw new InvalidOperationException();
-          Console.WriteLine("fdsa");
+          throw new InvalidOperationException();
         }
     }
 
@@ -124,22 +126,18 @@ public sealed class NetworkConnection : IDisposable
     /// <returns> The contents of the message. </returns>
     public string ReadLine( )
     {
-        if (IsConnected)
+        if (IsConnected && _reader != null)
         {
             try
             {
-                String? msg = _reader?.ReadLine()??"";
-                return msg;
+                return _reader.ReadLine();
             }
             catch (Exception)
             {
                 throw new InvalidOperationException();
             } 
         }
-        else
-        {
-            throw new InvalidOperationException();
-        }
+        throw new InvalidOperationException();
     }
 
     /// <summary>

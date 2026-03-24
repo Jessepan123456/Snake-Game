@@ -28,34 +28,17 @@ public static class Server
     {
         TcpListener listener = new( IPAddress.Any, port);
         listener.Start();
+        Console.WriteLine("Server Started");
 
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();
+            Console.WriteLine("Accepted client");
             
-            var networkConnection = new Networking.NetworkConnection(client);
+            var networkConnection = new NetworkConnection(client);
             new Thread(() => handleConnect(networkConnection)).Start();
         }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>a
-    /// <param name="client"></param>
-    public static void HandleConnect(TcpClient client)
-    {
-        NetworkConnection clientConnection = new(client);
-        
-        while (clientConnection.IsConnected)
-        {
-            Console.Write("HI");
-            string msg = clientConnection.ReadLine();
-            Console.WriteLine("Message: " + msg);
-            clientConnection.Send("Thanks for that message");
-        
-        }
-    }
-    
 }
 
 
