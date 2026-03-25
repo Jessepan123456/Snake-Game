@@ -27,7 +27,6 @@ public sealed class NetworkConnection : IDisposable
     ///   Writing end of the connection
     /// </summary>
     private StreamWriter? _writer;
-    
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="NetworkConnection"/> class.

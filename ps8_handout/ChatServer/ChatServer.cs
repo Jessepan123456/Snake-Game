@@ -15,8 +15,6 @@ public abstract class ChatServer
     /// <summary>
     ///   The main program.
     /// </summary>
-    
-    private static List<StreamWriter> _clients = new List<StreamWriter>();
     private static void Main( string[] _ )
     {
         Server.StartServer( HandleConnect, 11_000 );

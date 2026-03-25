@@ -5,6 +5,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace Networking;
 
@@ -14,7 +15,8 @@ namespace Networking;
 /// </summary>
 public static class Server
 {
-   
+    private static List<StreamWriter> list;
+    
     /// <summary>
     ///   Wait on a TcpListener for new connections. Alert the main program
     ///   via a callback (delegate) mechanism.
@@ -34,10 +36,22 @@ public static class Server
         {
             TcpClient client = listener.AcceptTcpClient();
             Console.WriteLine("Accepted client");
-            client.GetStream();
+            StreamWriter writer = new StreamWriter( client.GetStream(), Encoding.UTF8 ) { AutoFlush = true };
+
+            lock (list)
+            {
+                list.Add(writer);
+            }
             
             var networkConnection = new NetworkConnection(client);
-            new Thread(() => handleConnect(networkConnection)).Start();
+            try
+            {
+                new Thread(() => handleConnect(networkConnection)).Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error " + e.Message);
+            }
         }
     }
 }
