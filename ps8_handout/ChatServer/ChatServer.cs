@@ -15,6 +15,8 @@ public abstract class ChatServer
     /// <summary>
     ///   The main program.
     /// </summary>
+    
+    private static List<StreamWriter> _clients = new List<StreamWriter>();
     private static void Main( string[] _ )
     {
         Server.StartServer( HandleConnect, 11_000 );
@@ -30,19 +32,34 @@ public abstract class ChatServer
     ///
     private static void HandleConnect( NetworkConnection connection )
     {
+        bool hasSend = false;
+        string name = "";
+        
         // handle all messages until disconnect.
         try
         {
             while ( true )
             {
-                var message = connection.ReadLine( );
-
-                connection.Send( "thanks!" );
+                
+                if (hasSend == false)
+                {
+                    name = connection.ReadLine();
+                    hasSend = true;
+                    Console.WriteLine("Client:" + name);
+                    connection.Send("Your name is " + name);
+                }
+                var message = connection.ReadLine();
+                if (!(message == ""))
+                {
+                    Console.WriteLine(name + ": " + message);
+                    connection.Send(name + ": " + message);
+                }
+              
             }
         }
         catch ( Exception )
         {
-            // do anything necessary to handle a disconnected client in here
+           connection.Dispose();
         }
     }
 }

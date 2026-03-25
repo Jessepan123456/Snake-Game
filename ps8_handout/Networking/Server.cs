@@ -34,6 +34,7 @@ public static class Server
         {
             TcpClient client = listener.AcceptTcpClient();
             Console.WriteLine("Accepted client");
+            client.GetStream();
             
             var networkConnection = new NetworkConnection(client);
             new Thread(() => handleConnect(networkConnection)).Start();
