@@ -104,7 +104,7 @@ public sealed class NetworkConnection : IDisposable
                 _writer.WriteLine( message );
                 _writer.Flush();
             }
-            catch(Exception e)
+            catch(Exception)
             {
                throw new InvalidOperationException();
             }
