@@ -36,13 +36,7 @@ public static class Server
         {
             TcpClient client = listener.AcceptTcpClient();
             Console.WriteLine("Accepted client");
-            StreamWriter writer = new StreamWriter( client.GetStream(), Encoding.UTF8 ) { AutoFlush = true };
-
-            lock (list)
-            {
-                list.Add(writer);
-            }
-            
+       
             var networkConnection = new NetworkConnection(client);
             try
             {
