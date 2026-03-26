@@ -25,7 +25,6 @@ public abstract class ChatServer
     {
         Server.StartServer( HandleConnect, 11_000 );
         Console.Read(); // don't stop the program. 
-
     }
 
     /// <summary>
@@ -49,13 +48,13 @@ public abstract class ChatServer
             while ( true )
             {
                 
-                if (hasSend == false)
+                if (!hasSend)
                 {
                     name = connection.ReadLine();
-                    hasSend = true;
                     Console.WriteLine($"Client: {name}");
                     connection.Send($"Your name is {name} ");
                     Broadcast($"Server welcome {name}" );
+                    hasSend = true;
                 }
                 var message = connection.ReadLine();
                 if (!(message == ""))
@@ -85,9 +84,10 @@ public abstract class ChatServer
         {
             foreach (NetworkConnection connection in _connection)
             {
-                // Thread.Sleep(10000);
-                try { connection.Send(message); }
-                catch {}
+                lock (connection)
+                {
+                    connection.Send(message); 
+                }
             }   
         }
     }
