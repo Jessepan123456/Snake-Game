@@ -13,22 +13,18 @@ namespace Chatting;
 /// </summary>
 public abstract class ChatServer
 {
+    /// <summary>
+    ///     List Of Connected Clients
+    /// </summary>
     private static List<NetworkConnection> _connection = new List<NetworkConnection>();
+    
     /// <summary>
     ///   The main program.
     /// </summary>
     private static void Main( string[] _ )
     {
         Server.StartServer( HandleConnect, 11_000 );
-        while (true)
-        {
-            var message = Console.ReadLine();
-            foreach (var connection in _connection)
-            {
-                connection.Send(message);
-            }
-        }
-        Console.Read(); // don't stop the program. Jesse idk if this is need anymore?
+        Console.Read(); // don't stop the program. 
 
     }
 
@@ -38,7 +34,6 @@ public abstract class ChatServer
     ///     replies to a client.
     ///   </pre>
     /// </summary>
-    ///
     private static void HandleConnect( NetworkConnection connection )
     {
         bool hasSend = false;
@@ -49,7 +44,6 @@ public abstract class ChatServer
             _connection.Add(connection);
         }
         
-        // handle all messages until disconnect.
         try
         {
             while ( true )
@@ -59,15 +53,15 @@ public abstract class ChatServer
                 {
                     name = connection.ReadLine();
                     hasSend = true;
-                    Console.WriteLine("Client:" + name);
-                    connection.Send("Your name is " + name);
-                    Broadcast("Server:" + "welcome " + name);
+                    Console.WriteLine($"Client: {name}");
+                    connection.Send($"Your name is {name} ");
+                    Broadcast($"Server welcome {name}" );
                 }
                 var message = connection.ReadLine();
                 if (!(message == ""))
                 {
-                    Console.WriteLine(name + ": " + message);
-                    Broadcast(name + ": " + message);
+                    Console.WriteLine($"{name}: {message}");
+                    Broadcast($"{name}: {message}");
                 }
               
             }
@@ -78,19 +72,24 @@ public abstract class ChatServer
             {
                 _connection.Remove(connection);
             }
-           connection.Dispose();
+            connection.Dispose();
         }
     }
-    public static void Broadcast( string message )
-    {
-            lock(_connection)
+    
+    /// <summary>
+    ///     Helper method that helps broadcast the message sended by a client to all other clients
+    /// </summary>
+    /// <param name="message"></param>
+    private static void Broadcast( string message ) {
+        lock(_connection)
+        {
+            foreach (NetworkConnection connection in _connection)
             {
-                foreach (NetworkConnection connection in _connection)
-                {
-                    try { connection.Send(message); }
-                    catch {}
-                }   
-            }
+                // Thread.Sleep(10000);
+                try { connection.Send(message); }
+                catch {}
+            }   
         }
     }
+}
 

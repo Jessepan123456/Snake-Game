@@ -15,8 +15,6 @@ namespace Networking;
 /// </summary>
 public static class Server
 {
-    private static List<StreamWriter> list;
-    
     /// <summary>
     ///   Wait on a TcpListener for new connections. Alert the main program
     ///   via a callback (delegate) mechanism.
