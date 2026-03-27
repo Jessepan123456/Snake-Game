@@ -78,6 +78,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
+        _tcpClient = new();
         _tcpClient.Connect( host, port );
         {
             _reader = new StreamReader( _tcpClient.GetStream(), Encoding.UTF8 );
