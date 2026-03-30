@@ -4,11 +4,19 @@
 @using Blazor.Extensions.Canvas
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Diagnostics
+@using GUI.Components.Controllers
 @inject IJSRuntime JsRuntime;
 
 <PageTitle> Snake </PageTitle>
 
-<div id="snakeCanvas" style="position: fixed; width: 100%; height: 100%">
+player name <input @bind="_name"/>  
+ server address <input @bind="_address"/>
+ ports <inpu @bind="_port" />
+ <button>connect</button>
+ <button>disconect</button>
+ 
+ <div>  packets <input /> </div>
+ <div id="snakeCanvas" style="position: fixed; width: 100%; height: 100%">
     <BECanvas Width="1000" Height="1000" @ref="_canvasReference"></BECanvas>
 </div>
 
@@ -34,6 +42,8 @@
             // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync( "lightblue" );
             await _context.FillRectAsync( 0, 0, 1000, 1000 );
+           
+
         }
     }
 
