@@ -62,7 +62,6 @@ public abstract class ChatServer
                     Console.WriteLine($"{name}: {message}");
                     Broadcast($"{name}: {message}");
                 }
-              
             }
         }
         catch ( Exception )
