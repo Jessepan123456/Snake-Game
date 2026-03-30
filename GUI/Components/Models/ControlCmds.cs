@@ -1,16 +1,23 @@
 namespace GUI.Components.Models;
 
-public class ControlCmds
+public class Control
 {
-    public string moving { get; private set; }
+    /// <summary>
+    ///     Allows the variable Moving to get and set
+    /// </summary>
+    public string Moving { get; set; } = "none";
     
-    public  ControlCmds(string moving)
+    /// <summary>
+    ///     Default Constructor for Control
+    /// </summary>
+    public Control() { }
+    
+    /// <summary>
+    ///     Constructor for setting the movement
+    /// </summary>
+    /// <param name="moving"></param>
+    public Control(string moving)
     {
-        this.moving = moving;
-    }
-
-    public ControlCmds()
-    {
-        this.moving = "none";
+        this.Moving = moving;
     }
 }
