@@ -53,7 +53,7 @@ public abstract class ChatServer
                     name = connection.ReadLine();
                     Console.WriteLine($"Client: {name}");
                     connection.Send($"Your name is {name} ");
-                    Broadcast($"Server welcome {name}" );
+                    Broadcast($"Server: welcome {name}" );
                     hasSend = true;
                 }
                 var message = connection.ReadLine();
