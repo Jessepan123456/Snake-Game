@@ -2,22 +2,41 @@ namespace GUI.Components.Models;
 
 public class Walls
 {
-    public int WallID{get; private set;}
-    public Point2D P1{get; private set;}
-    public Point2D P2{get; private set;}
+    /// <summary>
+    /// Wall ID
+    /// </summary>
+    public int Wall{get; set;}
+    
+    /// <summary>
+    /// Start point of the Wall
+    /// </summary>
+    public Point2D P1{get; set;}
+    
+    /// <summary>
+    /// End point of the Wall
+    /// </summary>
+    public Point2D P2{get; set;}
 
+    /// <summary>
+    ///     Default Constructor for Walls
+    /// </summary>
     public Walls()
     {
-        WallID = 1;
-        P1 = new Point2D(-575,-575);
-        P2 = new Point2D(575,575); 
+        Wall = -1;
+        P1 = new Point2D( 0,0 );
+        P2 = new Point2D( 0,0 ); 
     }
      
-    public Walls(int WallID, Point2D P1, Point2D P2)
+    /// <summary>
+    ///     Constructor for Walls
+    /// </summary>
+    /// <param name="walls"></param>
+    /// <param name="p1"></param>
+    /// <param name="p2"></param>
+    public Walls(int wall, Point2D p1, Point2D p2)
     {
-        this.WallID = WallID;
-        this.P1 = P1;
-        this.P2 = P2;
-        
+        Wall = wall;
+        P1 = p1;
+        P2 = p2;
     }
 }

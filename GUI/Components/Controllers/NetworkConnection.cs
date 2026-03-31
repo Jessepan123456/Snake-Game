@@ -98,22 +98,12 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="message"> The string of characters to send. </param>
     public void Send( string message )
     {
-        if (IsConnected && _writer != null)
+        if (!IsConnected || _writer == null)
         {
-            try
-            {
-                _writer.WriteLine( message );
-                _writer.Flush();
-            }
-            catch(Exception)
-            {
-               throw new InvalidOperationException();
-            }
+            throw new InvalidOperationException();
         }
-        else
-        {
-          throw new InvalidOperationException();
-        }
+        _writer.WriteLine( message );
+        _writer.Flush();
     }
 
 
@@ -126,18 +116,16 @@ public sealed class NetworkConnection : IDisposable
     /// <returns> The contents of the message. </returns>
     public string ReadLine( )
     {
-        if (IsConnected && _reader != null)
-        {
-            try
-            {
-                return _reader.ReadLine();
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException();
-            } 
+        if (!IsConnected || _reader == null)
+        {   
+            throw new InvalidOperationException();
         }
-        throw new InvalidOperationException();
+        string? line = _reader.ReadLine();
+        
+        if (line == null)
+            throw new InvalidOperationException();
+        
+        return line;
     }
 
     /// <summary>

@@ -2,17 +2,31 @@ namespace GUI.Components.Models;
 
 public class Point2D
 {
-    public int X { get; private set; }
-    public int Y { get; private set; }
+    /// <summary>
+    /// X Position
+    /// </summary>
+    public int X { get; set; }
+    /// <summary>
+    /// Y Position
+    /// </summary>
+    public int Y { get; set; } 
     
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
     public Point2D(){
         X = -1;
         Y = -1;
     }
-
-    public Point2D(int X, int Y)
+    
+    /// <summary>
+    ///     Constructor for Point2D
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    public Point2D(int x, int y)
     {
-         this.X = X;
-         this.Y = Y;
+        X = x;
+        Y = y;
     }
 }

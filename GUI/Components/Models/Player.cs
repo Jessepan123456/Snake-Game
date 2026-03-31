@@ -2,20 +2,57 @@ namespace GUI.Components.Models;
 
 public class Player
 {
-    public int  SnakeID { get; private set; }
-    public string Name { get; private set; }
-    public List<Point2D> Body { get; private set; }
-    public Point2D Dir { get; private set; }
-    public int Score { get; private set; }
-    public bool Dead { get; private set; }
-    public bool Alive { get; private set; }
-    public bool Dc { get; private set; }
-    public bool Join {get; private set;}
+    /// <summary>
+    /// Snake ID
+    /// </summary>
+    public int  SnakeiD { get; set; }
+    
+    /// <summary>
+    /// Client Name
+    /// </summary>
+    public string Name { get; set; }
+    
+    /// <summary>
+    /// Snake Body Location
+    /// </summary>
+    public List<Point2D> Body { get; set; }
+    
+    /// <summary>
+    /// Snake Direction
+    /// </summary>
+    public Point2D Dir { get; set; }
+    
+    /// <summary>
+    /// Score
+    /// </summary>
+    public int Score { get; set; }
+    
+    /// <summary>
+    /// Snake Dead
+    /// </summary>
+    public bool Dead { get; set; }
+    
+    /// <summary>
+    /// Snake Alive
+    /// </summary>
+    public bool Alive { get; set; }
+    
+    /// <summary>
+    /// Client Disconnected
+    /// </summary>
+    public bool Dc { get; set; }
+    
+    /// <summary>
+    /// Client connected/joined
+    /// </summary>
+    public bool Join {get; set;}
 
-
+    /// <summary>
+    ///     Default Constructor for Player
+    /// </summary>
     public Player()
     {
-        SnakeID = 0;
+        SnakeiD = 0;
         Name = "";
         Body = new List<Point2D>();
         Dir = new Point2D();
@@ -24,15 +61,5 @@ public class Player
         Alive = true;
         Dc = false;
         Join = true;
-    }
-
-
-    public Player(int SnakeID, String Name, int Score , int X, int Y)
-    {
-        this.SnakeID = SnakeID;
-        this.Name = Name;
-        this.Score = Score;
-        Dir = new Point2D(X, Y);
-
     }
 }

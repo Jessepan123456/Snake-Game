@@ -2,20 +2,41 @@ namespace GUI.Components.Models;
 
 public class PowerUp
 {
-    public int power { get; private set; }
-    public List<Point2D> loc { get; private set; }
-    public bool died { get; private set; }
+    /// <summary>
+    /// Power Type
+    /// </summary>
+    public int Power { get; set; }
     
-    public PowerUp(int power, List<Point2D> loc)
-    {
-        this.power = power;
-        this.loc = loc;
-    }
-
+    /// <summary>
+    /// Power Location
+    /// </summary>
+    public List<Point2D> Location { get; set; }
+    
+    /// <summary>
+    /// Power Died or not
+    /// </summary>
+    public bool Died { get; set; }
+    
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
     public PowerUp()
     {
-        this.power = 0;
-        this.loc = new List<Point2D>();
-        this.died = false;
+        Power = -1;
+        Location = new List<Point2D>();
+        Died = false;
+    }
+
+    /// <summary>
+    ///     Constructor for PowerUp
+    /// </summary>
+    /// <param name="power"></param>
+    /// <param name="location"></param>
+    /// <param name="died"></param>
+    public PowerUp(int power, List<Point2D> location, bool died )
+    {
+        Power = power;
+        Location = location;
+        Died = died;
     }
 }

@@ -2,30 +2,50 @@ namespace GUI.Components.Models;
 
 public class World
 {
+    /// <summary>
+    /// Player Client
+    /// </summary>
     public Dictionary<int, Player> Player;
     
-    public Dictionary<int, PowerUp> Powerup;
+    /// <summary>
+    /// PowerUp
+    /// </summary>
+    public Dictionary<int, PowerUp> PowerUp;
     
-    public int Size {get; private set;}
+    /// <summary>
+    /// World Size
+    /// </summary>
+    public int Size {get; set;}
 
-    public World(int _size)
+    /// <summary>
+    ///     Default Constructor
+    /// </summary>
+    public World ()
     {
-        this.Size = _size;
-        this.Player = new Dictionary<int, Player>();
-        this.Powerup = new Dictionary<int, PowerUp>();
+        Size = 1;
+        Player = new Dictionary<int, Player>();
+        PowerUp = new Dictionary<int, PowerUp>();
     }
     
-    public World()
+    /// <summary>
+    ///     Constructor for World
+    /// </summary>
+    /// <param name="size"></param>
+    public World (int size)
     {
-        this.Size = 1;
-        this.Player = new Dictionary<int, Player>();
-        this.Powerup = new Dictionary<int, PowerUp>();
+        Size = size;
+        Player = new Dictionary<int, Player>();
+        PowerUp = new Dictionary<int, PowerUp>();
     }
 
-    public World(World world)
+    /// <summary>
+    ///     Copy World Constructor
+    /// </summary>
+    /// <param name="world"></param>
+    public World (World world)
     {
         Size = world.Size;
-        Player = new (world.Player);
-        Powerup = new (world.Powerup);
+        Player = new Dictionary<int, Player> (world.Player);
+        PowerUp = new Dictionary<int, PowerUp> (world.PowerUp);
     }
 }

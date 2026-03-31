@@ -1,10 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace GUI.Components.Models;
 
 public class Control
 {
     /// <summary>
-    ///     Allows the variable Moving to get and set
+    /// Player movement direction
     /// </summary>
+    [JsonPropertyName(("moving"))]
     public string Moving { get; set; } = "none";
     
     /// <summary>
@@ -18,6 +21,6 @@ public class Control
     /// <param name="moving"></param>
     public Control(string moving)
     {
-        this.Moving = moving;
+        Moving = moving;
     }
 }
