@@ -23,4 +23,10 @@
       <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Components\Pages\SnakeGUI.css">
+        <DependentUpon>SnakeGUI.razor</DependentUpon>
+      </None>
+    </ItemGroup>
+
 </Project>

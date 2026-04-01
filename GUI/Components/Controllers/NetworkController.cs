@@ -5,20 +5,35 @@ using Networking;
 namespace GUI.Components.Controllers;
 
 public class NetworkController
-{ 
-  NetworkConnection _connection = new NetworkConnection();
+{
+    private NetworkConnection _connection = new();
 
-  public void Connect(string Host, int Port, string Name)
-  {
-      _connection.Connect(Host, Port);
-      _connection.Send(Name);
-      
-  }
+    /// <summary>
+    ///     Connect to the Server
+    /// </summary>
+    /// <param name="host"></param>
+    /// <param name="port"></param>
+    /// <param name="name"></param>
+    public void Connect(string host, int port, string name)
+    { 
+        _connection.Connect(host, port); 
+        _connection.Send(name);
+    }
 
-  public void Disconnect()
-  {
-      _connection.Disconnect();
-  }
-  
-  
+    /// <summary>
+    ///     Disconnect from Server
+    /// </summary>
+    public void Disconnect()
+    {
+        _connection.Disconnect();
+    }
+
+    /// <summary>
+    ///     Is it connected to the server
+    /// </summary>
+    /// <returns>IsConnected</returns>
+    public bool IsConnected()
+    {
+        return _connection.IsConnected;
+    }
 }
