@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace GUI.Components.Models;
 
 public class PowerUp
@@ -5,16 +7,19 @@ public class PowerUp
     /// <summary>
     /// Power Type
     /// </summary>
+    [JsonPropertyName(("power"))]
     public int Power { get; set; }
     
     /// <summary>
     /// Power Location
     /// </summary>
+    [JsonPropertyName(("loc"))]
     public List<Point2D> Location { get; set; }
     
     /// <summary>
     /// Power Died or not
     /// </summary>
+    [JsonPropertyName(("died"))]
     public bool Died { get; set; }
     
     /// <summary>

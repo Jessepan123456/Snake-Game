@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace GUI.Components.Models;
 
 public class Walls
@@ -5,16 +7,19 @@ public class Walls
     /// <summary>
     /// Wall ID
     /// </summary>
+    [JsonPropertyName(("wall"))]
     public int Wall{get; set;}
     
     /// <summary>
     /// Start point of the Wall
     /// </summary>
+    [JsonPropertyName(("p1"))]
     public Point2D P1{get; set;}
     
     /// <summary>
     /// End point of the Wall
     /// </summary>
+    [JsonPropertyName(("p2"))]
     public Point2D P2{get; set;}
 
     /// <summary>
