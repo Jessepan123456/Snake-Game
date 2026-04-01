@@ -9,11 +9,11 @@
 
 <PageTitle> Snake </PageTitle>
 
-player name <input @bind="_name"/>  
- server address <input @bind="_address"/>
- ports <inpu @bind="_port" />
- <button>connect</button>
- <button>disconect</button>
+player name <input @bind="Name"/>  
+server address <input @bind="ServerAddress"/>
+ports <inpu @bind="Port" />
+<button @onclick="Start">connect </button>
+<button @onclick="Stop">disconect</button>
  
  <div>  packets <input /> </div>
  <div id="snakeCanvas" style="position: fixed; width: 100%; height: 100%">

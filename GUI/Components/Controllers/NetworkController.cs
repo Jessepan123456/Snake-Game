@@ -1,18 +1,24 @@
+using System.Net;
+using System.Net.Sockets;
+using Networking;
+
 namespace GUI.Components.Controllers;
 
 public class NetworkController
-{
-    public string name;
-    public string port;
-    public string address;
-    
-    public NetworkController(string name, string port, string address)
-    {
-        this.name = name;
-        this.port = port;
-        this.address = address;
-        
-    }
-    
-    
+{ 
+  NetworkConnection _connection = new NetworkConnection();
+
+  public void Connect(string Host, int Port, string Name)
+  {
+      _connection.Connect(Host, Port);
+      _connection.Send(Name);
+      
+  }
+
+  public void Disconnect()
+  {
+      _connection.Disconnect();
+  }
+  
+  
 }
