@@ -36,4 +36,9 @@ public class NetworkController
     {
         return _connection.IsConnected;
     }
+
+    public void Test()
+    {
+        Console.WriteLine(_connection.ReadLine());
+    }
 }

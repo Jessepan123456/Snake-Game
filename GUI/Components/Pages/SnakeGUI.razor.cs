@@ -35,4 +35,10 @@ public  partial class SnakeGUI
     {
         return !IsConnectedToServer();
     }
+
+    private void RunsLine()
+    {
+        _controller.Test();
+    }
+    
 }
