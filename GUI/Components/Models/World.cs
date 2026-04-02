@@ -12,6 +12,12 @@ public class World
     /// </summary>
     public Dictionary<int, PowerUp> PowerUp;
     
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public Dictionary<int, Walls> Walls;
+    
     /// <summary>
     /// World Size
     /// </summary>
@@ -25,6 +31,7 @@ public class World
         Size = 1;
         Player = new Dictionary<int, Player>();
         PowerUp = new Dictionary<int, PowerUp>();
+        Walls = new Dictionary<int, Walls>();
     }
     
     /// <summary>
@@ -36,7 +43,7 @@ public class World
         Size = size;
         Player = new Dictionary<int, Player>();
         PowerUp = new Dictionary<int, PowerUp>();
-        
+        Walls = new Dictionary<int, Walls>();
     }
 
     /// <summary>
@@ -48,5 +55,6 @@ public class World
         Size = world.Size;
         Player = new Dictionary<int, Player> (world.Player);
         PowerUp = new Dictionary<int, PowerUp> (world.PowerUp);
+        Walls = new Dictionary<int, Walls> (world.Walls);
     }
 }

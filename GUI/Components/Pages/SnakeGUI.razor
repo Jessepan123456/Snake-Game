@@ -5,6 +5,7 @@
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Diagnostics
 @using GUI.Components.Controllers
+@using GUI.Components.Models;
 @inject IJSRuntime JsRuntime;
 
 <PageTitle> Snake </PageTitle>
@@ -39,7 +40,7 @@
     private IJSObjectReference? _jsModule;
 
 
-
+  
     protected override async Task OnAfterRenderAsync( bool firstRender )
     {
         if ( firstRender )
@@ -48,6 +49,9 @@
             _context = await _canvasReference.CreateCanvas2DAsync();
             await JsRuntime.InvokeAsync<object>( "initRenderJS", DotNetObjectReference.Create( this ) );
 
+         
+            //You get info from model and you update based on what the model says. 
+            //YOu call from the model you update every before you start drawing so everything is already set by the Network Controller so it not empty
           
             // in the meantime, draw something to initialize the canvas
             // you may want to remove this after you are drawing something
@@ -58,16 +62,6 @@
         }
        
     }
-
-    private void NetworkLoop()
-    {
-        while (true)
-        {
-            Console.WriteLine(RecieveServerMessage());
-        }
-        
-    }
-
 
 
     [JSInvokable]

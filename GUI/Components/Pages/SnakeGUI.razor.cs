@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using GUI.Components.Controllers;
+using GUI.Components.Models;
 
 namespace GUI.Components.Pages;
 
@@ -9,6 +10,8 @@ public  partial class SnakeGUI
     private string _name = "snake" ;
     private  int _port = 11000;
     private string _serverAddress = "localhost";
+
+   // private World GameWorld = new World();
     NetworkController _controller = new NetworkController();
 
     /// <summary>
@@ -17,9 +20,6 @@ public  partial class SnakeGUI
     private void ConnectToServer()
     {
         _controller.Connect(_serverAddress, _port, _name); 
-        if (IsConnectedToServer()){
-            new Thread(NetworkLoop).Start();
-        }
     }
 
     /// <summary>
@@ -40,11 +40,6 @@ public  partial class SnakeGUI
     private bool DisableInput()
     {
         return !IsConnectedToServer();
-    }
-
-    private string RecieveServerMessage()
-    { 
-       return _controller.Recv();
     }
     
 }
