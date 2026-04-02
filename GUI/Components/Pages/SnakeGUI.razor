@@ -13,9 +13,9 @@
     <label> Name: </label>
     <input disabled="@DisableInput()" @bind="_name"/>
     <label> Server Address </label>
-    <input disabled="@DisableInput()" @type="text" @bind="_serverAddress"/>
+    <input disabled="@DisableInput()" type="text" @bind="_serverAddress"/>
     <label> Port </label>
-    <input disabled="@DisableInput()" @type="number" @bind="_port" />
+    <input disabled="@DisableInput()" type="number" @bind="_port" />
     @if (IsConnectedToServer())
     {
         <button @onclick="DisconnectFromServer"> Disconnect </button>
