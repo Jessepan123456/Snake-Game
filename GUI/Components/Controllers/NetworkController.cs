@@ -7,6 +7,7 @@ namespace GUI.Components.Controllers;
 public class NetworkController
 {
     private NetworkConnection _connection = new();
+   
 
     /// <summary>
     ///     Connect to the Server
@@ -18,6 +19,7 @@ public class NetworkController
     { 
         _connection.Connect(host, port); 
         _connection.Send(name);
+        
     }
 
     /// <summary>
@@ -37,8 +39,14 @@ public class NetworkController
         return _connection.IsConnected;
     }
 
-    public void Test()
+    public string Recv()
     {
-        Console.WriteLine(_connection.ReadLine());
+        return _connection.ReadLine();
     }
+
+    public void Send(string msg)
+    {
+        _connection.Send(msg);
+    }
+ 
 }

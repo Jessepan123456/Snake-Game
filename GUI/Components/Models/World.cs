@@ -36,6 +36,7 @@ public class World
         Size = size;
         Player = new Dictionary<int, Player>();
         PowerUp = new Dictionary<int, PowerUp>();
+        
     }
 
     /// <summary>

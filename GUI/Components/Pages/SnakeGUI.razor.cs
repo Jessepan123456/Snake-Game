@@ -14,7 +14,13 @@ public  partial class SnakeGUI
     /// <summary>
     /// Connect to Server
     /// </summary>
-    private void ConnectToServer() { _controller.Connect(_serverAddress, _port, _name); }
+    private void ConnectToServer()
+    {
+        _controller.Connect(_serverAddress, _port, _name); 
+        if (IsConnectedToServer()){
+            new Thread(NetworkLoop).Start();
+        }
+    }
 
     /// <summary>
     /// Disconnect from Server
@@ -36,9 +42,9 @@ public  partial class SnakeGUI
         return !IsConnectedToServer();
     }
 
-    private void RunsLine()
-    {
-        _controller.Test();
+    private string RecieveServerMessage()
+    { 
+       return _controller.Recv();
     }
     
 }
