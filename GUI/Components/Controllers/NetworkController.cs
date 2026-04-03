@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using GUI.Components.Models;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Networking;
@@ -11,7 +13,12 @@ public class NetworkController
     private NetworkConnection _connection = new();
 
     private World GameWorld = new World();
-    private Dictionary<int, Player> Players = new Dictionary<int, Player>();
+    //private Dictionary<int, Player> Players = new Dictionary<int, Player>();
+
+
+    private String PlayerMatch = "snake";
+    private String WallMatch = "wall";
+    private String PowerUpMatch = "power";
 
     /// <summary>
     ///     Connect to the Server
@@ -59,19 +66,69 @@ public class NetworkController
     {
         string Id = Recv();
         Player client = new Player();
-        Players.Add(int.Parse(Id), client);
+        GameWorld.Player.Add(int.Parse(Id), client);
 
         string size = Recv();
         GameWorld.Size = int.Parse(size);
         
         Console.WriteLine(Id);
         Console.WriteLine(GameWorld.Size);
-        
-        while (true)
+         
+        while (IsConnected())
         {
+            
             string mess = Recv();
-            Console.WriteLine(mess);
+            // Console.WriteLine(mess);
             // GameWorld.Player =  Players;
+            if (Regex.IsMatch(mess, PlayerMatch))   //deserialze player packet
+            {
+                Console.WriteLine("player");
+                
+                Player? player = JsonSerializer.Deserialize<Player>(mess);
+                if(player != null)
+                {
+                    if(GameWorld.Player.ContainsKey(player.SnakeiD)){
+                        GameWorld.Player[player.SnakeiD] = player;
+                    }
+                    else
+                    {
+                        GameWorld.Player.Add(player.SnakeiD, player);
+                    }
+                }
+                
+            }
+
+            if (Regex.IsMatch(mess, PowerUpMatch))
+            {
+              Console.WriteLine("power");
+              PowerUp? power = JsonSerializer.Deserialize<PowerUp>(mess);
+              if(power != null)
+              {
+                  if(GameWorld.PowerUp.ContainsKey(power.Power)){
+                      GameWorld.PowerUp[power.Power] = power;
+                  }
+                  else
+                  {
+                      GameWorld.PowerUp.Add(power.Power, power);
+                  }
+              }
+            }
+
+            if (Regex.IsMatch(mess, WallMatch))
+            { 
+                Console.WriteLine("wall");
+                Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
+                if(wall != null)
+                {
+                    if(GameWorld.Walls.ContainsKey(wall.Wall)){
+                        GameWorld.Walls[wall.Wall] = wall;
+                    }
+                    else
+                    {
+                        GameWorld.Walls.Add(wall.Wall, wall);
+                    }
+                }
+            }
         }
     }
  
