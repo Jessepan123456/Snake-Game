@@ -8,7 +8,7 @@
 @using GUI.Components.Models;
 @inject IJSRuntime JsRuntime;
 
-<PageTitle> Snake </PageTitle>
+<PageTitle> Snake</PageTitle>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -16,14 +16,14 @@
     <label> Server Address </label>
     <input disabled="@DisableInput()" type="text" @bind="_serverAddress"/>
     <label> Port </label>
-    <input disabled="@DisableInput()" type="number" @bind="_port" />
+    <input disabled="@DisableInput()" type="number" @bind="_port"/>
     @if (IsConnectedToServer())
     {
-        <button @onclick="DisconnectFromServer"> Disconnect </button>
+        <button @onclick="DisconnectFromServer"> Disconnect</button>
     }
     else
     {
-        <button @onclick="ConnectToServer"> Connect </button>
+        <button @onclick="ConnectToServer"> Connect</button>
     }
 </div>
 
@@ -40,37 +40,33 @@
     private IJSObjectReference? _jsModule;
 
 
-  
-    protected override async Task OnAfterRenderAsync( bool firstRender )
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ( firstRender )
+        if (firstRender)
         {
-            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>( "import", "./Components/Pages/SnakeGUI.razor.js" );
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/SnakeGUI.razor.js");
             _context = await _canvasReference.CreateCanvas2DAsync();
-            await JsRuntime.InvokeAsync<object>( "initRenderJS", DotNetObjectReference.Create( this ) );
+            await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
 
-         
+
             //You get info from model and you update based on what the model says. 
             //YOu call from the model you update every before you start drawing so everything is already set by the Network Controller so it not empty
-          
+
             // in the meantime, draw something to initialize the canvas
             // you may want to remove this after you are drawing something
-            await _context.SetFillStyleAsync( "lightblue" );
-            await _context.FillRectAsync( 0, 0, 1000, 1000 );
-           
-
+            await _context.SetFillStyleAsync("lightblue");
+            await _context.FillRectAsync(0, 0, 1000, 1000);
         }
-       
     }
 
 
     [JSInvokable]
-    public void HandleKeyPress( string key )
+    public void HandleKeyPress(string key)
     {
         // TODO: Once the client is connected and the handshake is complete,
         //       invoke some controller method to send the appropriate command to the server
-      
-       SendKeyCmd(key);
+
+        SendKeyCmd(key);
         // TODO: Remove this, which is just here to show you what the 'key' string is for whatever key you pressed
         Debug.WriteLine("key pressed: " + key);
     }

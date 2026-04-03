@@ -9,12 +9,14 @@ public class Control
     /// </summary>
     [JsonPropertyName(("moving"))]
     public string Moving { get; set; } = "none";
-    
+
     /// <summary>
     ///     Default Constructor for Control
     /// </summary>
-    public Control() { }
-    
+    public Control()
+    {
+    }
+
     /// <summary>
     ///     Constructor for setting the movement
     /// </summary>

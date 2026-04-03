@@ -67,7 +67,6 @@ public class NetworkController
     {
         try //subbject to change might be a bad idea or there is a bbettwe way to handle disconnection
         {
-
             string Id = Recv();
             Player client = new Player();
             GameWorld.Player.Add(int.Parse(Id), client);
@@ -152,21 +151,23 @@ public class NetworkController
     public void sendControl(string key)
     {
         Control input = new Control();
-        
-        if (key == "w" || key =="ArrowUp")
+
+        if (key == "w" || key == "ArrowUp")
         {
             input.Moving = "up";
         }
+
         if (key == "s" || key == "ArrowDown")
         {
-           input.Moving = "down";
+            input.Moving = "down";
         }
+
         if (key == "a" || key == "ArrowLeft")
         {
             input.Moving = "left";
         }
 
-        if (key == "d"  || key == "ArrowRight")
+        if (key == "d" || key == "ArrowRight")
         {
             input.Moving = "right";
         }

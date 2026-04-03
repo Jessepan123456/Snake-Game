@@ -5,13 +5,13 @@ using GUI.Components.Models;
 
 namespace GUI.Components.Pages;
 
-public  partial class SnakeGUI
+public partial class SnakeGUI
 {
-    private string _name = "snake" ;
-    private  int _port = 11000;
+    private string _name = "snake";
+    private int _port = 11000;
     private string _serverAddress = "localhost";
 
-   // private World GameWorld = new World();
+    // private World GameWorld = new World();
     NetworkController _controller = new NetworkController();
 
     /// <summary>
@@ -19,19 +19,25 @@ public  partial class SnakeGUI
     /// </summary>
     private void ConnectToServer()
     {
-        _controller.Connect(_serverAddress, _port, _name); 
+        _controller.Connect(_serverAddress, _port, _name);
     }
 
     /// <summary>
     /// Disconnect from Server
     /// </summary>
-    private void DisconnectFromServer() { _controller.Disconnect(); }
+    private void DisconnectFromServer()
+    {
+        _controller.Disconnect();
+    }
 
     /// <summary>
     /// Check if it connected to Server
     /// </summary>
     /// <returns></returns>
-    private bool IsConnectedToServer() { return _controller.IsConnected(); }
+    private bool IsConnectedToServer()
+    {
+        return _controller.IsConnected();
+    }
 
     /// <summary>
     /// Disable Input when you disconnect
@@ -46,5 +52,4 @@ public  partial class SnakeGUI
     {
         _controller.sendControl(key);
     }
-    
 }
