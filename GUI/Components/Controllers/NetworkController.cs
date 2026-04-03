@@ -12,7 +12,6 @@ public class NetworkController
 
     private World GameWorld = new World();
     private Dictionary<int, Player> Players = new Dictionary<int, Player>();
-    
 
     /// <summary>
     ///     Connect to the Server
@@ -58,26 +57,21 @@ public class NetworkController
     
     private void NetworkLoop()
     {
-        int counter = 0;
+        string Id = Recv();
+        Player client = new Player();
+        Players.Add(int.Parse(Id), client);
+
+        string size = Recv();
+        GameWorld.Size = int.Parse(size);
+        
+        Console.WriteLine(Id);
+        Console.WriteLine(GameWorld.Size);
+        
         while (true)
         {
             string mess = Recv();
-            counter++;
-            if (counter == 1)
-            {  
-                Player client = new Player();
-               Players.Add(int.Parse(mess), client);
-               
-            }
-
-            if (counter == 2)
-            {
-                GameWorld.Size = int.Parse(mess);
-                
-            }
-            
-            GameWorld.Player =  Players;
-            
+            Console.WriteLine(mess);
+            // GameWorld.Player =  Players;
         }
     }
  
