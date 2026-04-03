@@ -27,9 +27,10 @@ public class NetworkController
     /// <param name="port"></param>
     /// <param name="name"></param>
     public void Connect(string host, int port, string name)
-    { 
-        _connection.Connect(host, port); 
-        if (IsConnected()){
+    {
+        _connection.Connect(host, port);
+        if (IsConnected())
+        {
             _connection.Send(name);
             new Thread(NetworkLoop).Start();
         }
@@ -61,75 +62,117 @@ public class NetworkController
     {
         _connection.Send(msg);
     }
-    
+
     private void NetworkLoop()
     {
-        string Id = Recv();
-        Player client = new Player();
-        GameWorld.Player.Add(int.Parse(Id), client);
-
-        string size = Recv();
-        GameWorld.Size = int.Parse(size);
-        
-        Console.WriteLine(Id);
-        Console.WriteLine(GameWorld.Size);
-         
-        while (IsConnected())
+        try //subbject to change might be a bad idea or there is a bbettwe way to handle disconnection
         {
-            
-            string mess = Recv();
-            // Console.WriteLine(mess);
-            // GameWorld.Player =  Players;
-            if (Regex.IsMatch(mess, PlayerMatch))   //deserialze player packet
+
+            string Id = Recv();
+            Player client = new Player();
+            GameWorld.Player.Add(int.Parse(Id), client);
+
+            string size = Recv();
+            GameWorld.Size = int.Parse(size);
+
+            while (IsConnected())
             {
-                Console.WriteLine("player");
-                
-                Player? player = JsonSerializer.Deserialize<Player>(mess);
-                if(player != null)
+                string mess = Recv();
+                Console.WriteLine(mess);
+                if (Regex.IsMatch(mess, PlayerMatch)) //deserialze player packet
                 {
-                    if(GameWorld.Player.ContainsKey(player.SnakeiD)){
-                        GameWorld.Player[player.SnakeiD] = player;
-                    }
-                    else
+                    // Console.WriteLine("player");
+
+                    Player? player = JsonSerializer.Deserialize<Player>(mess);
+                    if (player != null)
                     {
-                        GameWorld.Player.Add(player.SnakeiD, player);
+                        if (player.Dc)
+                        {
+                            GameWorld.Player.Remove(player.SnakeiD);
+                        }
+
+                        if (GameWorld.Player.ContainsKey(player.SnakeiD))
+                        {
+                            GameWorld.Player[player.SnakeiD] = player;
+                        }
+                        else
+                        {
+                            GameWorld.Player.Add(player.SnakeiD, player);
+                        }
                     }
                 }
-                
-            }
 
-            if (Regex.IsMatch(mess, PowerUpMatch))
-            {
-              Console.WriteLine("power");
-              PowerUp? power = JsonSerializer.Deserialize<PowerUp>(mess);
-              if(power != null)
-              {
-                  if(GameWorld.PowerUp.ContainsKey(power.Power)){
-                      GameWorld.PowerUp[power.Power] = power;
-                  }
-                  else
-                  {
-                      GameWorld.PowerUp.Add(power.Power, power);
-                  }
-              }
-            }
-
-            if (Regex.IsMatch(mess, WallMatch))
-            { 
-                Console.WriteLine("wall");
-                Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
-                if(wall != null)
+                if (Regex.IsMatch(mess, PowerUpMatch))
                 {
-                    if(GameWorld.Walls.ContainsKey(wall.Wall)){
-                        GameWorld.Walls[wall.Wall] = wall;
-                    }
-                    else
+                    // Console.WriteLine("power");
+
+                    PowerUp? power = JsonSerializer.Deserialize<PowerUp>(mess);
+                    if (power != null)
                     {
-                        GameWorld.Walls.Add(wall.Wall, wall);
+                        if (power.Died)
+                        {
+                            GameWorld.PowerUp.Remove(power.PowerType);
+                        }
+
+                        if (GameWorld.PowerUp.ContainsKey(power.PowerType))
+                        {
+                            GameWorld.PowerUp[power.PowerType] = power; //Update
+                        }
+                        else
+                        {
+                            GameWorld.PowerUp.Add(power.PowerType, power);
+                        }
+                    }
+                }
+
+                if (Regex.IsMatch(mess, WallMatch))
+                {
+                    // Console.WriteLine("wall");
+                    Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
+                    if (wall != null)
+                    {
+                        if (GameWorld.Walls.ContainsKey(wall.WallType))
+                        {
+                            GameWorld.Walls[wall.WallType] = wall;
+                        }
+                        else
+                        {
+                            GameWorld.Walls.Add(wall.WallType, wall);
+                        }
                     }
                 }
             }
         }
+        catch
+        {
+            return;
+        }
     }
- 
+
+    public void sendControl(string key)
+    {
+        Control input = new Control();
+        
+        if (key == "w" || key =="ArrowUp")
+        {
+            input.Moving = "up";
+        }
+        if (key == "s" || key == "ArrowDown")
+        {
+           input.Moving = "down";
+        }
+        if (key == "a" || key == "ArrowLeft")
+        {
+            input.Moving = "left";
+        }
+
+        if (key == "d"  || key == "ArrowRight")
+        {
+            input.Moving = "right";
+        }
+
+        var cmd = JsonSerializer.Serialize(input);
+        //Console.WriteLine(cmd);
+        _connection.Send(cmd);
+    }
 }

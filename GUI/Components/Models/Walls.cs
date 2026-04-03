@@ -8,7 +8,7 @@ public class Walls
     /// Wall ID
     /// </summary>
     [JsonPropertyName(("wall"))]
-    public int Wall{get; set;}
+    public int WallType{get; set;}
     
     /// <summary>
     /// Start point of the Wall
@@ -27,7 +27,7 @@ public class Walls
     /// </summary>
     public Walls()
     {
-        Wall = -1;
+        WallType = -1;
         P1 = new Point2D( 0,0 );
         P2 = new Point2D( 0,0 ); 
     }
@@ -40,7 +40,7 @@ public class Walls
     /// <param name="p2"></param>
     public Walls(int wall, Point2D p1, Point2D p2)
     {
-        Wall = wall;
+        WallType = wall;
         P1 = p1;
         P2 = p2;
     }

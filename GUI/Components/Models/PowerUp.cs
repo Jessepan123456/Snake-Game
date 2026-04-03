@@ -8,13 +8,13 @@ public class PowerUp
     /// Power Type
     /// </summary>
     [JsonPropertyName(("power"))]
-    public int Power { get; set; }
+    public int PowerType { get; set; }
     
     /// <summary>
     /// Power Location
     /// </summary>
     [JsonPropertyName(("loc"))]
-    public List<Point2D> Location { get; set; }
+    public Point2D Location { get; set; }
     
     /// <summary>
     /// Power Died or not
@@ -27,8 +27,8 @@ public class PowerUp
     /// </summary>
     public PowerUp()
     {
-        Power = -1;
-        Location = new List<Point2D>();
+        PowerType = -1;
+        Location = new Point2D();
         Died = false;
     }
 
@@ -38,9 +38,9 @@ public class PowerUp
     /// <param name="power"></param>
     /// <param name="location"></param>
     /// <param name="died"></param>
-    public PowerUp(int power, List<Point2D> location, bool died )
+    public PowerUp(int power, Point2D location, bool died )
     {
-        Power = power;
+        PowerType = power;
         Location = location;
         Died = died;
     }

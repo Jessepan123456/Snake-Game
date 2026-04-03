@@ -41,5 +41,10 @@ public  partial class SnakeGUI
     {
         return !IsConnectedToServer();
     }
+
+    public void SendKeyCmd(string key)
+    {
+        _controller.sendControl(key);
+    }
     
 }
