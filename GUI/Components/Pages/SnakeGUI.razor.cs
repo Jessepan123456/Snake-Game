@@ -50,6 +50,6 @@ public partial class SnakeGUI
 
     public void SendKeyCmd(string key)
     {
-        _controller.sendControl(key);
+        _controller.SendControl(key);
     }
 }

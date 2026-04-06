@@ -12,13 +12,13 @@ public class NetworkController
 {
     private NetworkConnection _connection = new();
 
-    private World GameWorld = new World();
+    private World _gameWorld = new World();
     //private Dictionary<int, Player> Players = new Dictionary<int, Player>();
 
 
-    private String PlayerMatch = "snake";
-    private String WallMatch = "wall";
-    private String PowerUpMatch = "power";
+    private String _playerMatch = "snake";
+    private String _wallMatch = "wall";
+    private String _powerUpMatch = "power";
 
     /// <summary>
     ///     Connect to the Server
@@ -67,18 +67,18 @@ public class NetworkController
     {
         try //subbject to change might be a bad idea or there is a bbettwe way to handle disconnection
         {
-            string Id = Recv();
+            string id = Recv();
             Player client = new Player();
-            GameWorld.Player.Add(int.Parse(Id), client);
+            _gameWorld.Player.Add(int.Parse(id), client);
 
             string size = Recv();
-            GameWorld.Size = int.Parse(size);
+            _gameWorld.Size = int.Parse(size);
 
             while (IsConnected())
             {
                 string mess = Recv();
                 Console.WriteLine(mess);
-                if (Regex.IsMatch(mess, PlayerMatch)) //deserialze player packet
+                if (Regex.IsMatch(mess, _playerMatch)) //deserialze player packet
                 {
                     // Console.WriteLine("player");
 
@@ -87,21 +87,21 @@ public class NetworkController
                     {
                         if (player.Dc)
                         {
-                            GameWorld.Player.Remove(player.SnakeiD);
+                            _gameWorld.Player.Remove(player.SnakeiD);
                         }
 
-                        if (GameWorld.Player.ContainsKey(player.SnakeiD))
+                        if (_gameWorld.Player.ContainsKey(player.SnakeiD))
                         {
-                            GameWorld.Player[player.SnakeiD] = player;
+                            _gameWorld.Player[player.SnakeiD] = player;
                         }
                         else
                         {
-                            GameWorld.Player.Add(player.SnakeiD, player);
+                            _gameWorld.Player.Add(player.SnakeiD, player);
                         }
                     }
                 }
 
-                if (Regex.IsMatch(mess, PowerUpMatch))
+                if (Regex.IsMatch(mess, _powerUpMatch))
                 {
                     // Console.WriteLine("power");
 
@@ -110,33 +110,33 @@ public class NetworkController
                     {
                         if (power.Died)
                         {
-                            GameWorld.PowerUp.Remove(power.PowerType);
+                            _gameWorld.PowerUp.Remove(power.PowerType);
                         }
 
-                        if (GameWorld.PowerUp.ContainsKey(power.PowerType))
+                        if (_gameWorld.PowerUp.ContainsKey(power.PowerType))
                         {
-                            GameWorld.PowerUp[power.PowerType] = power; //Update
+                            _gameWorld.PowerUp[power.PowerType] = power; //Update
                         }
                         else
                         {
-                            GameWorld.PowerUp.Add(power.PowerType, power);
+                            _gameWorld.PowerUp.Add(power.PowerType, power);
                         }
                     }
                 }
 
-                if (Regex.IsMatch(mess, WallMatch))
+                if (Regex.IsMatch(mess, _wallMatch))
                 {
                     // Console.WriteLine("wall");
                     Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
                     if (wall != null)
                     {
-                        if (GameWorld.Walls.ContainsKey(wall.WallType))
+                        if (_gameWorld.Walls.ContainsKey(wall.WallType))
                         {
-                            GameWorld.Walls[wall.WallType] = wall;
+                            _gameWorld.Walls[wall.WallType] = wall;
                         }
                         else
                         {
-                            GameWorld.Walls.Add(wall.WallType, wall);
+                            _gameWorld.Walls.Add(wall.WallType, wall);
                         }
                     }
                 }
@@ -148,7 +148,7 @@ public class NetworkController
         }
     }
 
-    public void sendControl(string key)
+    public void SendControl(string key)
     {
         Control input = new Control();
 
