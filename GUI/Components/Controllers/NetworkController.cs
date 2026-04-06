@@ -77,7 +77,6 @@ public class NetworkController
             while (IsConnected())
             {
                 string mess = Recv();
-                Console.WriteLine(mess);
                 if (Regex.IsMatch(mess, _playerMatch)) //deserialze player packet
                 {
                     // Console.WriteLine("player");
@@ -90,8 +89,7 @@ public class NetworkController
                             _gameWorld.Player.Remove(player.SnakeiD);
                         }
 
-                            _gameWorld.Player[player.SnakeiD] = player;
-                     
+                        _gameWorld.Player[player.SnakeiD] = player;
                     }
                 }
 
@@ -106,8 +104,8 @@ public class NetworkController
                         {
                             _gameWorld.PowerUp.Remove(power.PowerType);
                         }
-                        
-                            _gameWorld.PowerUp[power.PowerType] = power; //Update
+
+                        _gameWorld.PowerUp[power.PowerType] = power; //Update
                     }
                 }
 
@@ -116,7 +114,7 @@ public class NetworkController
                     // Console.WriteLine("wall");
                     Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
                     if (wall != null)
-                    { 
+                    {
                         _gameWorld.Walls[wall.WallType] = wall;
                     }
                 }

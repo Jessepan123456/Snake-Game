@@ -12,7 +12,6 @@ public partial class SnakeGUI
     private int _port = 11000;
     private string _serverAddress = "localhost";
 
-  
 
     // private World GameWorld = new World();
     NetworkController _controller = new NetworkController();

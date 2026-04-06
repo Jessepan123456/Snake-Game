@@ -4,13 +4,16 @@
 @using Blazor.Extensions.Canvas
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Diagnostics
-@using GUI.Components.Controllers
 @using GUI.Components.Models;
 @inject IJSRuntime JsRuntime;
 
 <PageTitle> Snake</PageTitle>
 
-<img @ref="backgroundImage" id="bgImage" src="/images/images/Background.jpg" alt="image" style="display:none;" />
+<img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.jpg" alt="image" style="display:none;"/>\
+<img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>\
+<img @ref="_snakeHead1" id="head1Image" src="/images/images/jbhead1.png" alt="image" style="display:none;"/>
+<img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg"
+     style="display:none;"/>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -40,10 +43,13 @@
     private BECanvasComponent? _canvasReference;
     private Canvas2DContext _context = null!;
     private IJSObjectReference? _jsModule;
-    private ElementReference backgroundImage;
+    private ElementReference _backgroundImage;
+    private ElementReference _powerupImage;
+    private ElementReference _snakeHead1;
+    private ElementReference _wallImage;
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
-    private World CopyWorld = new World();
+    private World _copyWorld = new World();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -56,7 +62,7 @@
 
             //You get info from model, and you update based on what the model says. 
             //YOu call from the model you update every before you start drawing so everything is already set by the Network Controller so it not empty
-           
+
             // in the meantime, draw something to initialize the canvas
             // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync("lightblue");
@@ -69,13 +75,10 @@
     [JSInvokable]
     public void HandleKeyPress(string key)
     {
-        // TODO: Once the client is connected and the handshake is complete,
-        //       invoke some controller method to send the appropriate command to the server
-
         SendKeyCmd(key);
-        // TODO: Remove this, which is just here to show you what the 'key' string is for whatever key you pressed
         Debug.WriteLine("key pressed: " + key);
     }
+
     private async void GameLoop()
     {
         while (true)
@@ -87,24 +90,63 @@
 
     private async Task DrawFrame()
     {
-        CopyWorld = RecieveWorld();
-        
+        lock (_copyWorld)
+        {
+            _copyWorld = RecieveWorld();
+        }
+
         await _context.BeginBatchAsync();
-           // clip the view so that objects drawn outside the canvas will not be shown
         await _context.BeginPathAsync();
-        await _context.RectAsync( 0, 0, ViewWidth, ViewHeight );
+        await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
 
-// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
         await _context.SaveAsync();
 
-// Center on origin, move to center of view port
-        await _context.TranslateAsync( ViewWidth / 2, ViewHeight / 2 );
-       // await _context.TranslateAsync( -head.X, -head.Y );
+        await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
+        // await _context.TranslateAsync( -head.X, -head.Y );
 
-// Draw the background:
-        await _context.DrawImageAsync( backgroundImage, -CopyWorld.Size/2,-CopyWorld.Size/2, CopyWorld.Size,CopyWorld.Size );
-      
+
+        await _context.DrawImageAsync(_backgroundImage, -_copyWorld.Size / 2, -_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
+
+        foreach (Walls w in _copyWorld.Walls.Values)
+        {
+            await _context.BeginPathAsync();
+            //await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
+            await _context.DrawImageAsync(_wallImage, w.P1.X, w.P1.Y, 100, 100);
+            await _context.DrawImageAsync(_wallImage, w.P2.X, w.P2.Y, 100, 100);
+        }
+
+        foreach (Player p in _copyWorld.Player.Values)
+        {
+            await _context.SetLineWidthAsync(5);
+
+
+            if (p.SnakeiD % 2 == 0)
+                await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )");
+            else
+                await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
+
+            foreach (Point2D point in p.Body)
+            {
+                await _context.BeginPathAsync();
+                //await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
+                await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 100, 100);
+            }
+        }
+
+        foreach (PowerUp p in _copyWorld.PowerUp.Values)
+        {
+            Point2D loc = p.Location;
+
+            // smaller yellow circle for powerups
+            await _context.SetLineWidthAsync(5);
+            await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
+            await _context.BeginPathAsync();
+            // await _context.DrawImageAsync(_powerupImage, loc.X, loc.Y, 16, 16 );
+            await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+            await _context.StrokeAsync();
+        }
+
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
         StateHasChanged();
