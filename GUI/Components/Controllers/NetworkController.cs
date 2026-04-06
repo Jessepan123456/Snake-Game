@@ -90,14 +90,8 @@ public class NetworkController
                             _gameWorld.Player.Remove(player.SnakeiD);
                         }
 
-                        if (_gameWorld.Player.ContainsKey(player.SnakeiD))
-                        {
                             _gameWorld.Player[player.SnakeiD] = player;
-                        }
-                        else
-                        {
-                            _gameWorld.Player.Add(player.SnakeiD, player);
-                        }
+                     
                     }
                 }
 
@@ -112,15 +106,8 @@ public class NetworkController
                         {
                             _gameWorld.PowerUp.Remove(power.PowerType);
                         }
-
-                        if (_gameWorld.PowerUp.ContainsKey(power.PowerType))
-                        {
+                        
                             _gameWorld.PowerUp[power.PowerType] = power; //Update
-                        }
-                        else
-                        {
-                            _gameWorld.PowerUp.Add(power.PowerType, power);
-                        }
                     }
                 }
 
@@ -129,15 +116,8 @@ public class NetworkController
                     // Console.WriteLine("wall");
                     Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
                     if (wall != null)
-                    {
-                        if (_gameWorld.Walls.ContainsKey(wall.WallType))
-                        {
-                            _gameWorld.Walls[wall.WallType] = wall;
-                        }
-                        else
-                        {
-                            _gameWorld.Walls.Add(wall.WallType, wall);
-                        }
+                    { 
+                        _gameWorld.Walls[wall.WallType] = wall;
                     }
                 }
             }
@@ -175,5 +155,10 @@ public class NetworkController
         var cmd = JsonSerializer.Serialize(input);
         //Console.WriteLine(cmd);
         _connection.Send(cmd);
+    }
+
+    public World SendCopyOfWorld()
+    {
+        return _gameWorld;
     }
 }

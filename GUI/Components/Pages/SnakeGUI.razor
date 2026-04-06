@@ -10,6 +10,8 @@
 
 <PageTitle> Snake</PageTitle>
 
+<img @ref="backgroundImage" id="bgImage" src="/images/images/Background.jpg" alt="image" style="display:none;" />
+
 <div id="ConnectionInputs">
     <label> Name: </label>
     <input disabled="@DisableInput()" @bind="_name"/>
@@ -36,9 +38,12 @@
 @code
 {
     private BECanvasComponent? _canvasReference;
-    private Canvas2DContext? _context;
+    private Canvas2DContext _context = null!;
     private IJSObjectReference? _jsModule;
-
+    private ElementReference backgroundImage;
+    private const int ViewWidth = 1000;
+    private const int ViewHeight = 1000;
+    private World CopyWorld = new World();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -51,11 +56,12 @@
 
             //You get info from model, and you update based on what the model says. 
             //YOu call from the model you update every before you start drawing so everything is already set by the Network Controller so it not empty
-
+           
             // in the meantime, draw something to initialize the canvas
             // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync("lightblue");
             await _context.FillRectAsync(0, 0, 1000, 1000);
+            GameLoop();
         }
     }
 
@@ -70,5 +76,38 @@
         // TODO: Remove this, which is just here to show you what the 'key' string is for whatever key you pressed
         Debug.WriteLine("key pressed: " + key);
     }
+    private async void GameLoop()
+    {
+        while (true)
+        {
+            Thread.Sleep(20);
+            await DrawFrame();
+        }
+    }
 
-}
+    private async Task DrawFrame()
+    {
+        CopyWorld = RecieveWorld();
+        
+        await _context.BeginBatchAsync();
+           // clip the view so that objects drawn outside the canvas will not be shown
+        await _context.BeginPathAsync();
+        await _context.RectAsync( 0, 0, ViewWidth, ViewHeight );
+        await _context.ClipAsync();
+
+// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
+        await _context.SaveAsync();
+
+// Center on origin, move to center of view port
+        await _context.TranslateAsync( ViewWidth / 2, ViewHeight / 2 );
+       // await _context.TranslateAsync( -head.X, -head.Y );
+
+// Draw the background:
+        await _context.DrawImageAsync( backgroundImage, -CopyWorld.Size/2,-CopyWorld.Size/2, CopyWorld.Size,CopyWorld.Size );
+      
+        await _context.RestoreAsync();
+        await _context.EndBatchAsync();
+        StateHasChanged();
+    }
+
+} 

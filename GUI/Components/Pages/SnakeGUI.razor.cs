@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using GUI.Components.Controllers;
 using GUI.Components.Models;
+using Microsoft.AspNetCore.Components;
 
 namespace GUI.Components.Pages;
 
@@ -10,6 +11,8 @@ public partial class SnakeGUI
     private string _name = "snake";
     private int _port = 11000;
     private string _serverAddress = "localhost";
+
+  
 
     // private World GameWorld = new World();
     NetworkController _controller = new NetworkController();
@@ -48,8 +51,13 @@ public partial class SnakeGUI
         return !IsConnectedToServer();
     }
 
-    public void SendKeyCmd(string key)
+    private void SendKeyCmd(string key)
     {
         _controller.SendControl(key);
+    }
+
+    private World RecieveWorld()
+    {
+        return _controller.SendCopyOfWorld();
     }
 }
