@@ -12,7 +12,6 @@ public class World
     /// </summary>
     public Dictionary<int, PowerUp> PowerUp;
     
-    
     /// <summary>
     /// 
     /// </summary>

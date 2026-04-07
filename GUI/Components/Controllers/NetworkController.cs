@@ -13,12 +13,10 @@ public class NetworkController
     private NetworkConnection _connection = new();
 
     private World _gameWorld = new World();
-    //private Dictionary<int, Player> Players = new Dictionary<int, Player>();
-
-
-    private String _playerMatch = "snake";
-    private String _wallMatch = "wall";
-    private String _powerUpMatch = "power";
+    private String _playerPattern = "snake";
+    private String _wallPattern = "wall";
+    private String _powerUpPattern = "power";
+    private int _playerId = 0;
 
     /// <summary>
     ///     Connect to the Server
@@ -53,21 +51,30 @@ public class NetworkController
         return _connection.IsConnected;
     }
 
+    /// <summary>
+    ///     Help receive data from the server
+    /// </summary>
+    /// <returns></returns>
     public string Recv()
     {
         return _connection.ReadLine();
     }
 
-    public void Send(string msg)
+    /// <summary>
+    ///     Get the ID from the server for the snakes
+    /// </summary>
+    /// <returns></returns>
+    public int GetPlayerId()
     {
-        _connection.Send(msg);
+        return _playerId;
     }
 
     private void NetworkLoop()
     {
-        try //subbject to change might be a bad idea or there is a bbettwe way to handle disconnection
+        try
         {
             string id = Recv();
+            _playerId = int.Parse(id);
             Player client = new Player();
             _gameWorld.Player.Add(int.Parse(id), client);
 
@@ -77,10 +84,8 @@ public class NetworkController
             while (IsConnected())
             {
                 string mess = Recv();
-                if (Regex.IsMatch(mess, _playerMatch)) //deserialze player packet
+                if (Regex.IsMatch(mess, _playerPattern))
                 {
-                    // Console.WriteLine("player");
-
                     Player? player = JsonSerializer.Deserialize<Player>(mess);
                     if (player != null)
                     {
@@ -93,10 +98,8 @@ public class NetworkController
                     }
                 }
 
-                if (Regex.IsMatch(mess, _powerUpMatch))
+                if (Regex.IsMatch(mess, _powerUpPattern))
                 {
-                    // Console.WriteLine("power");
-
                     PowerUp? power = JsonSerializer.Deserialize<PowerUp>(mess);
                     if (power != null)
                     {
@@ -105,13 +108,12 @@ public class NetworkController
                             _gameWorld.PowerUp.Remove(power.PowerType);
                         }
 
-                        _gameWorld.PowerUp[power.PowerType] = power; //Update
+                        _gameWorld.PowerUp[power.PowerType] = power;
                     }
                 }
 
-                if (Regex.IsMatch(mess, _wallMatch))
+                if (Regex.IsMatch(mess, _wallPattern))
                 {
-                    // Console.WriteLine("wall");
                     Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
                     if (wall != null)
                     {
@@ -151,7 +153,6 @@ public class NetworkController
         }
 
         var cmd = JsonSerializer.Serialize(input);
-        //Console.WriteLine(cmd);
         _connection.Send(cmd);
     }
 

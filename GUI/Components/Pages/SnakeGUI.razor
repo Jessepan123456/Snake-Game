@@ -12,16 +12,15 @@
 <img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.png" alt="image" style="display:none;"/>\
 <img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>\
 <img @ref="_snakeHead1" id="head1Image" src="/images/images/guy1head.png" alt="image" style="display:none;"/>
-<img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg"
-     style="display:none;"/>
+<img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg" style="display:none;"/>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
-    <input disabled="@DisableInput()" @bind="_name"/>
+    <input disabled="@IsDisableInput()" @bind="_name"/>
     <label> Server Address </label>
-    <input disabled="@DisableInput()" type="text" @bind="_serverAddress"/>
+    <input disabled="@IsDisableInput()" type="text" @bind="_serverAddress"/>
     <label> Port </label>
-    <input disabled="@DisableInput()" type="number" @bind="_port"/>
+    <input disabled="@IsDisableInput()" type="number" @bind="_port"/>
     @if (IsConnectedToServer())
     {
         <button @onclick="DisconnectFromServer"> Disconnect</button>
@@ -43,6 +42,7 @@
     private BECanvasComponent? _canvasReference;
     private Canvas2DContext _context = null!;
     private IJSObjectReference? _jsModule;
+
     private ElementReference _backgroundImage;
     private ElementReference _powerupImage;
     private ElementReference _snakeHead1;
@@ -50,6 +50,7 @@
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
     private World _copyWorld = new World();
+    private int _snakeId = 0;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -58,11 +59,7 @@
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/SnakeGUI.razor.js");
             _context = await _canvasReference.CreateCanvas2DAsync();
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
-
-
-            //You get info from model, and you update based on what the model says. 
-            //YOu call from the model you update every before you start drawing so everything is already set by the Network Controller so it not empty
-
+            
             // in the meantime, draw something to initialize the canvas
             // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync("lightblue");
@@ -71,12 +68,10 @@
         }
     }
 
-
     [JSInvokable]
     public void HandleKeyPress(string key)
     {
         SendKeyCmd(key);
-        Debug.WriteLine("key pressed: " + key);
     }
 
     private async void GameLoop()
@@ -92,7 +87,7 @@
     {
         lock (_copyWorld)
         {
-            _copyWorld = RecieveWorld();
+            _copyWorld = ReceiveWorld();
         }
 
         await _context.BeginBatchAsync();
@@ -101,10 +96,15 @@
         await _context.ClipAsync();
 
         await _context.SaveAsync();
-        
-        await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
-        // await _context.TranslateAsync( -head.X, -head.Y );
 
+        await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
+        _snakeId = GetPlayerId();
+        if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
+        {
+            int snakeHeadIndex = player.Body.Count - 1;
+            Point2D head = player.Body[snakeHeadIndex];
+            await _context.TranslateAsync(-head.X, -head.Y);
+        }
 
         await _context.DrawImageAsync(_backgroundImage, -_copyWorld.Size / 2, -_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
 
@@ -118,7 +118,7 @@
 
         foreach (Player p in _copyWorld.Player.Values)
         {
-            await _context.SetLineWidthAsync(5);
+            await _context.SetLineWidthAsync(10);
 
 
             if (p.SnakeiD % 2 == 0)
@@ -126,13 +126,23 @@
             else
                 await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
 
-            
+
+            // foreach (Point2D point in p.Body)
+            // {
+            //     await _context.BeginPathAsync();
+            //     await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
+            //     // await _context.DrawImageAsync(_snakeHead1, point.X , point.Y, 10 , 5);
+            // }
+
+            Point2D start = p.Body[0];
+            await _context.MoveToAsync(start.X, start.Y);
+
             foreach (Point2D point in p.Body)
             {
-                await _context.BeginPathAsync();
-                //await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
-                await _context.DrawImageAsync(_snakeHead1, point.X , point.Y, 10 , 5);
+                await _context.LineToAsync(point.X, point.Y);
             }
+
+            await _context.StrokeAsync();
         }
 
         foreach (PowerUp p in _copyWorld.PowerUp.Values)
@@ -143,6 +153,7 @@
             {
                 continue;
             }
+
             // smaller yellow circle for powerups
             await _context.SetLineWidthAsync(5);
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
@@ -156,5 +167,4 @@
         await _context.EndBatchAsync();
         StateHasChanged();
     }
-
 } 
