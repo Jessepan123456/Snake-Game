@@ -9,9 +9,9 @@
 
 <PageTitle> Snake</PageTitle>
 
-<img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.jpg" alt="image" style="display:none;"/>\
+<img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.png" alt="image" style="display:none;"/>\
 <img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>\
-<img @ref="_snakeHead1" id="head1Image" src="/images/images/jbhead1.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead1" id="head1Image" src="/images/images/guy1head.png" alt="image" style="display:none;"/>
 <img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg"
      style="display:none;"/>
 
@@ -101,7 +101,7 @@
         await _context.ClipAsync();
 
         await _context.SaveAsync();
-
+        
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
         // await _context.TranslateAsync( -head.X, -head.Y );
 
@@ -112,8 +112,8 @@
         {
             await _context.BeginPathAsync();
             //await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
-            await _context.DrawImageAsync(_wallImage, w.P1.X, w.P1.Y, 100, 100);
-            await _context.DrawImageAsync(_wallImage, w.P2.X, w.P2.Y, 100, 100);
+            await _context.DrawImageAsync(_wallImage, w.P1.X, w.P1.Y, 50, 50);
+            await _context.DrawImageAsync(_wallImage, w.P2.X, w.P2.Y, 50, 50);
         }
 
         foreach (Player p in _copyWorld.Player.Values)
@@ -126,11 +126,12 @@
             else
                 await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
 
+            
             foreach (Point2D point in p.Body)
             {
                 await _context.BeginPathAsync();
                 //await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
-                await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 100, 100);
+                await _context.DrawImageAsync(_snakeHead1, point.X , point.Y, 10 , 5);
             }
         }
 
@@ -138,6 +139,10 @@
         {
             Point2D loc = p.Location;
 
+            if (p.Died)
+            {
+                continue;
+            }
             // smaller yellow circle for powerups
             await _context.SetLineWidthAsync(5);
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
