@@ -15,7 +15,8 @@
 <img @ref="_snakeTail1" id="Tail1Image" src="/images/images/guy1legs.png" alt="image" style="display:none;"/>
 <img @ref="_snakeBody1" id="Body1Image" src="/images/images/guy1body.png" alt="image" style="display:none;"/>
 
-<img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg" style="display:none;"/>
+<img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg"
+     style="display:none;"/>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -64,7 +65,7 @@
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/SnakeGUI.razor.js");
             _context = await _canvasReference.CreateCanvas2DAsync();
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
-            
+
             // in the meantime, draw something to initialize the canvas
             // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync("lightblue");
@@ -99,12 +100,13 @@
 
         await _context.BeginBatchAsync();
         await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
+        await _context.SetFillStyleAsync("lightblue");
+        await _context.FillRectAsync(0, 0, 1000, 1000);
         await _context.SaveAsync();
         await _context.BeginPathAsync();
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
 
-        
 
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
         _snakeId = GetPlayerId();
@@ -125,7 +127,7 @@
 
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
-        
+
         StateHasChanged();
     }
 
@@ -136,21 +138,21 @@
             await _context.BeginPathAsync();
             if (wall.P1.X == wall.P2.X) //vertical wall
             {
-                int start = Math.Min(wall.P1.Y,wall.P2.Y);
-                int end = Math.Max(wall.P1.Y,wall.P2.Y);
+                int start = Math.Min(wall.P1.Y, wall.P2.Y);
+                int end = Math.Max(wall.P1.Y, wall.P2.Y);
                 for (int i = start; i <= end; i += 50)
                 {
                     await _context.DrawImageAsync(_wallImage, wall.P1.X, i, 50, 50);
                 }
             }
-            
+
             if (wall.P1.Y == wall.P2.Y) //horizontal wall
             {
-                int start = Math.Min(wall.P1.X,wall.P2.X);
-                int end = Math.Max(wall.P1.X,wall.P2.X);
+                int start = Math.Min(wall.P1.X, wall.P2.X);
+                int end = Math.Max(wall.P1.X, wall.P2.X);
                 for (int i = start; i <= end; i += 50)
                 {
-                    await _context.DrawImageAsync(_wallImage,i , wall.P1.Y, 50, 50);
+                    await _context.DrawImageAsync(_wallImage, i, wall.P1.Y, 50, 50);
                 }
             }
         }
@@ -161,43 +163,40 @@
         foreach (Player p in _copyWorld.Player.Values)
         {
             await _context.SetLineWidthAsync(10);
-
-
+            
             if (p.SnakeiD % 2 == 0)
                 await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )");
             else
                 await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
-                await _context.BeginPathAsync();
-            
-                for (int i = 0; i < p.Body.Count; i++)
+            await _context.BeginPathAsync();
+
+            for (int i = 0; i < p.Body.Count; i++)
+            {
+                Point2D point = p.Body[i];
+                await _context.ArcAsync(point.X, point.Y, 700, 0, 2 * Math.PI);
+                if (i == 0)
                 {
-                    Point2D point = p.Body[i];
-                    await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
-                    if (i == 0)
-                    {
-                        await _context.DrawImageAsync(_snakeTail1, point.X, point.Y, 50, 50);
-                    }
-                    else if (i == p.Body.Count - 1)
-                    {
-                        await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 50, 50);
-                    }
-                    else
-                    {
-                        await _context.DrawImageAsync(_snakeBody1, point.X, point.Y, 30, 30);
-                    }
+                    await _context.DrawImageAsync(_snakeTail1, point.X, point.Y, 10, 10);
                 }
-
-            
-
+                else if (i == p.Body.Count - 1)
+                {
+                    await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 10, 10);
+                }
+                else
+                {
+                    await _context.DrawImageAsync(_snakeBody1, point.X, point.Y, 10, 10);
+                }
+            }
+            //
             // Point2D start = p.Body[0];
             // await _context.MoveToAsync(start.X, start.Y);
-
+            //
             // foreach (Point2D point in p.Body)
             // {
             //     await _context.LineToAsync(point.X, point.Y);
             // }
-
-            await _context.StrokeAsync();
+            //
+            // await _context.StrokeAsync();
         }
     }
 
