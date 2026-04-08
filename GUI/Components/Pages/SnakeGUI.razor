@@ -9,22 +9,20 @@
 
 <PageTitle> Snake</PageTitle>
 
-<img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.png" alt="image" style="display:none;"/>\
-<img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>\
+<img @ref="_backgroundImage" id="bgImage" src="/images/images/Grass.png" alt="image" style="display:none;"/>
+<img @ref="_wallImage" id="wallImage" src="/images/images/Wall.png" alt="walling"style="display:none;"/>
+<img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>
 <img @ref="_snakeHead1" id="head1Image" src="/images/images/backupsnake_head.png" alt="image" style="display:none;"/>
 <img @ref="_snakeTail1" id="Tail1Image" src="/images/images/guy1legs.png" alt="image" style="display:none;"/>
 <img @ref="_snakeBody1" id="Body1Image" src="/images/images/guy1body.png" alt="image" style="display:none;"/>
 
-<img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg"
-     style="display:none;"/>
-
 <div id="ConnectionInputs">
     <label> Name: </label>
-    <input  @bind="_name"/>
+    <input disabled="@IsDisableInput()" @bind="_name"/>
     <label> Server Address </label>
-    <input type="text" @bind="_serverAddress"/>
+    <input disabled="@IsDisableInput()" type="text" @bind="_serverAddress"/>
     <label> Port </label>
-    <input type="number" @bind="_port"/>
+    <input disabled="@IsDisableInput()" type="number" @bind="_port"/>
     @if (IsConnectedToServer())
     {
         <button @onclick="DisconnectFromServer"> Disconnect</button>
@@ -56,7 +54,7 @@
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
     private World _copyWorld = new World();
-    private int _snakeId = 0;
+    private int _snakeId;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -106,8 +104,7 @@
         await _context.BeginPathAsync();
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
-
-
+        
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
@@ -141,10 +138,10 @@
                 int start = Math.Min(wall.P1.Y, wall.P2.Y);
                 int end = Math.Max(wall.P1.Y, wall.P2.Y);
                 int extra = (end - start) % 50;
-                
+
                 for (int i = start; i <= end + extra; i += 50)
                 {
-                    await _context.DrawImageAsync(_wallImage, wall.P1.X-25, i-25, 50, 50);
+                    await _context.DrawImageAsync(_wallImage, wall.P1.X - 25, i - 25, 50, 50);
                 }
             }
 
@@ -153,10 +150,10 @@
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
                 int extra = (end - start) % 50;
-                
+
                 for (int i = start; i <= end + extra; i += 50)
                 {
-                    await _context.DrawImageAsync(_wallImage, i-25, wall.P1.Y-25, 50, 50);
+                    await _context.DrawImageAsync(_wallImage, i - 25, wall.P1.Y - 25, 50, 50);
                 }
             }
         }
@@ -167,11 +164,19 @@
         foreach (Player p in _copyWorld.Player.Values)
         {
             await _context.SetLineWidthAsync(10);
-            
-            if (p.SnakeiD % 2 == 0)
-                await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )");
-            else
-                await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
+
+            int color = p.SnakeiD % 8;
+            switch (color)
+            {
+                case 0: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )"); break;
+                case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 0 )"); break;
+                case 2: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )"); break;
+                case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )"); break;
+                case 4: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 255 )"); break;
+                case 5: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 255 )"); break;
+                case 6: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 255 )"); break;
+                case 7: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
+            }
             await _context.BeginPathAsync();
 
             // for (int i = 0; i < p.Body.Count; i++)
@@ -191,17 +196,17 @@
             //         await _context.DrawImageAsync(_snakeBody1, point.X, point.Y, 10, 10);
             //     }
             // }
-            
-        Point2D start = p.Body[0];
-        await _context.MoveToAsync(start.X, start.Y);
-        
-        foreach (Point2D point in p.Body)
-        {
-            await _context.LineToAsync(point.X, point.Y);
+
+            Point2D start = p.Body[0];
+            await _context.MoveToAsync(start.X, start.Y);
+
+            foreach (Point2D point in p.Body)
+            {
+                await _context.LineToAsync(point.X, point.Y);
+            }
+
+            await _context.StrokeAsync();
         }
-        
-        await _context.StrokeAsync();
-         }
     }
 
     private async Task DrawPowerUps()

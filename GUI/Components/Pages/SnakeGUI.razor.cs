@@ -45,7 +45,7 @@ public partial class SnakeGUI
     /// <returns></returns>
     private bool IsDisableInput()
     {
-        return !IsConnectedToServer();
+        return IsConnectedToServer();
     }
 
     private void SendKeyCmd(string key)
