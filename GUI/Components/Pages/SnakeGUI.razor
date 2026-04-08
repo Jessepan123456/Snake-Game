@@ -12,6 +12,9 @@
 <img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.png" alt="image" style="display:none;"/>\
 <img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>\
 <img @ref="_snakeHead1" id="head1Image" src="/images/images/guy1head.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail1" id="Tail1Image" src="/images/images/guy1legs.png" alt="image" style="display:none;"/>
+<img @ref="_snakeBody1" id="Body1Image" src="/images/images/guy1body.png" alt="image" style="display:none;"/>
+
 <img @ref="_wallImage" id="wallImage" src="/images/images/Background_brick_wall.jpg" alt="wallimg" style="display:none;"/>
 
 <div id="ConnectionInputs">
@@ -34,7 +37,7 @@
 
 
 <div id="snakeCanvas" style="position: fixed; width: 100%; height: 100%">
-    <BECanvas Width="1000" Height="1000" @ref="_canvasReference"></BECanvas>
+    <BECanvas Width="2000" Height="1000" @ref="_canvasReference"></BECanvas>
 </div>
 
 @code
@@ -46,6 +49,8 @@
     private ElementReference _backgroundImage;
     private ElementReference _powerupImage;
     private ElementReference _snakeHead1;
+    private ElementReference _snakeBody1;
+    private ElementReference _snakeTail1;
     private ElementReference _wallImage;
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
@@ -64,6 +69,7 @@
             // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync("lightblue");
             await _context.FillRectAsync(0, 0, 1000, 1000);
+            await Task.Delay(200);
             GameLoop();
         }
     }
@@ -85,37 +91,73 @@
 
     private async Task DrawFrame()
     {
+        World newWorld = ReceiveWorld();
         lock (_copyWorld)
         {
-            _copyWorld = ReceiveWorld();
+            _copyWorld = newWorld;
         }
 
         await _context.BeginBatchAsync();
+        await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
+        await _context.SaveAsync();
         await _context.BeginPathAsync();
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
 
-        await _context.SaveAsync();
+        
 
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
         {
-            int snakeHeadIndex = player.Body.Count - 1;
-            Point2D head = player.Body[snakeHeadIndex];
-            await _context.TranslateAsync(-head.X, -head.Y);
+            if (player.Body.Count > 0)
+            {
+                int snakeHeadIndex = player.Body.Count - 1;
+                Point2D head = player.Body[snakeHeadIndex];
+                await _context.TranslateAsync(-head.X, -head.Y);
+            }
         }
 
         await _context.DrawImageAsync(_backgroundImage, -_copyWorld.Size / 2, -_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
+        await DrawWall();
+        await DrawPlayer();
+        await DrawPowerUps();
 
-        foreach (Walls w in _copyWorld.Walls.Values)
+        await _context.RestoreAsync();
+        await _context.EndBatchAsync();
+        
+        StateHasChanged();
+    }
+
+    private async Task DrawWall()
+    {
+        foreach (Walls wall in _copyWorld.Walls.Values)
         {
             await _context.BeginPathAsync();
-            //await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
-            await _context.DrawImageAsync(_wallImage, w.P1.X, w.P1.Y, 50, 50);
-            await _context.DrawImageAsync(_wallImage, w.P2.X, w.P2.Y, 50, 50);
+            if (wall.P1.X == wall.P2.X) //vertical wall
+            {
+                int start = Math.Min(wall.P1.Y,wall.P2.Y);
+                int end = Math.Max(wall.P1.Y,wall.P2.Y);
+                for (int i = start; i <= end; i += 50)
+                {
+                    await _context.DrawImageAsync(_wallImage, wall.P1.X, i, 50, 50);
+                }
+            }
+            
+            if (wall.P1.Y == wall.P2.Y) //horizontal wall
+            {
+                int start = Math.Min(wall.P1.X,wall.P2.X);
+                int end = Math.Max(wall.P1.X,wall.P2.X);
+                for (int i = start; i <= end; i += 50)
+                {
+                    await _context.DrawImageAsync(_wallImage,i , wall.P1.Y, 50, 50);
+                }
+            }
         }
+    }
 
+    private async Task DrawPlayer()
+    {
         foreach (Player p in _copyWorld.Player.Values)
         {
             await _context.SetLineWidthAsync(10);
@@ -125,26 +167,42 @@
                 await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )");
             else
                 await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
+                await _context.BeginPathAsync();
+            
+                for (int i = 0; i < p.Body.Count; i++)
+                {
+                    Point2D point = p.Body[i];
+                    await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
+                    if (i == 0)
+                    {
+                        await _context.DrawImageAsync(_snakeTail1, point.X, point.Y, 50, 50);
+                    }
+                    else if (i == p.Body.Count - 1)
+                    {
+                        await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 50, 50);
+                    }
+                    else
+                    {
+                        await _context.DrawImageAsync(_snakeBody1, point.X, point.Y, 30, 30);
+                    }
+                }
 
+            
+
+            // Point2D start = p.Body[0];
+            // await _context.MoveToAsync(start.X, start.Y);
 
             // foreach (Point2D point in p.Body)
             // {
-            //     await _context.BeginPathAsync();
-            //     await _context.ArcAsync( point.X, point.Y, 700, 0, 2 * Math.PI );
-            //     // await _context.DrawImageAsync(_snakeHead1, point.X , point.Y, 10 , 5);
+            //     await _context.LineToAsync(point.X, point.Y);
             // }
-
-            Point2D start = p.Body[0];
-            await _context.MoveToAsync(start.X, start.Y);
-
-            foreach (Point2D point in p.Body)
-            {
-                await _context.LineToAsync(point.X, point.Y);
-            }
 
             await _context.StrokeAsync();
         }
+    }
 
+    private async Task DrawPowerUps()
+    {
         foreach (PowerUp p in _copyWorld.PowerUp.Values)
         {
             Point2D loc = p.Location;
@@ -162,9 +220,5 @@
             await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
-
-        await _context.RestoreAsync();
-        await _context.EndBatchAsync();
-        StateHasChanged();
     }
 } 
