@@ -11,7 +11,7 @@
 
 <img @ref="_backgroundImage" id="bgImage" src="/images/images/Background.png" alt="image" style="display:none;"/>\
 <img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>\
-<img @ref="_snakeHead1" id="head1Image" src="/images/images/guy1head.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead1" id="head1Image" src="/images/images/backupsnake_head.png" alt="image" style="display:none;"/>
 <img @ref="_snakeTail1" id="Tail1Image" src="/images/images/guy1legs.png" alt="image" style="display:none;"/>
 <img @ref="_snakeBody1" id="Body1Image" src="/images/images/guy1body.png" alt="image" style="display:none;"/>
 
@@ -20,11 +20,11 @@
 
 <div id="ConnectionInputs">
     <label> Name: </label>
-    <input disabled="@IsDisableInput()" @bind="_name"/>
+    <input  @bind="_name"/>
     <label> Server Address </label>
-    <input disabled="@IsDisableInput()" type="text" @bind="_serverAddress"/>
+    <input type="text" @bind="_serverAddress"/>
     <label> Port </label>
-    <input disabled="@IsDisableInput()" type="number" @bind="_port"/>
+    <input type="number" @bind="_port"/>
     @if (IsConnectedToServer())
     {
         <button @onclick="DisconnectFromServer"> Disconnect</button>
@@ -140,9 +140,11 @@
             {
                 int start = Math.Min(wall.P1.Y, wall.P2.Y);
                 int end = Math.Max(wall.P1.Y, wall.P2.Y);
-                for (int i = start; i <= end; i += 50)
+                int extra = (end - start) % 50;
+                
+                for (int i = start; i <= end + extra; i += 50)
                 {
-                    await _context.DrawImageAsync(_wallImage, wall.P1.X, i, 50, 50);
+                    await _context.DrawImageAsync(_wallImage, wall.P1.X-25, i-25, 50, 50);
                 }
             }
 
@@ -150,9 +152,11 @@
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
-                for (int i = start; i <= end; i += 50)
+                int extra = (end - start) % 50;
+                
+                for (int i = start; i <= end + extra; i += 50)
                 {
-                    await _context.DrawImageAsync(_wallImage, i, wall.P1.Y, 50, 50);
+                    await _context.DrawImageAsync(_wallImage, i-25, wall.P1.Y-25, 50, 50);
                 }
             }
         }
@@ -170,34 +174,34 @@
                 await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )");
             await _context.BeginPathAsync();
 
-            for (int i = 0; i < p.Body.Count; i++)
-            {
-                Point2D point = p.Body[i];
-                await _context.ArcAsync(point.X, point.Y, 700, 0, 2 * Math.PI);
-                if (i == 0)
-                {
-                    await _context.DrawImageAsync(_snakeTail1, point.X, point.Y, 10, 10);
-                }
-                else if (i == p.Body.Count - 1)
-                {
-                    await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 10, 10);
-                }
-                else
-                {
-                    await _context.DrawImageAsync(_snakeBody1, point.X, point.Y, 10, 10);
-                }
-            }
-            //
-            // Point2D start = p.Body[0];
-            // await _context.MoveToAsync(start.X, start.Y);
-            //
-            // foreach (Point2D point in p.Body)
+            // for (int i = 0; i < p.Body.Count; i++)
             // {
-            //     await _context.LineToAsync(point.X, point.Y);
+            //     Point2D point = p.Body[i];
+            //     await _context.ArcAsync(point.X, point.Y, 700, 0, 2 * Math.PI);
+            //     if (i == 0)
+            //     {
+            //         await _context.DrawImageAsync(_snakeTail1, point.X, point.Y, 10, 10);
+            //     }
+            //     else if (i == p.Body.Count - 1)
+            //     {
+            //         await _context.DrawImageAsync(_snakeHead1, point.X, point.Y, 10, 10);
+            //     }
+            //     else
+            //     {
+            //         await _context.DrawImageAsync(_snakeBody1, point.X, point.Y, 10, 10);
+            //     }
             // }
-            //
-            // await _context.StrokeAsync();
+            
+        Point2D start = p.Body[0];
+        await _context.MoveToAsync(start.X, start.Y);
+        
+        foreach (Point2D point in p.Body)
+        {
+            await _context.LineToAsync(point.X, point.Y);
         }
+        
+        await _context.StrokeAsync();
+         }
     }
 
     private async Task DrawPowerUps()
