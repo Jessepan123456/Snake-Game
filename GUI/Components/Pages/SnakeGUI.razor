@@ -4,6 +4,7 @@
 @using Blazor.Extensions.Canvas
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Diagnostics
+@using System.Drawing
 @using GUI.Components.Models;
 @inject IJSRuntime JsRuntime;
 
@@ -12,9 +13,24 @@
 <img @ref="_backgroundImage" id="bgImage" src="/images/images/Earth.png" alt="image" style="display:none;"/>
 <img @ref="_wallImage" id="wallImage" src="/images/images/Walls.png" alt="walling" style="display:none;"/>
 <img @ref="_powerupImage" id="puImage" src="/images/images/PowerUp.png" alt="image" style="display:none;"/>
-<img @ref="_snakeHead1" id="head1Image" src="/images/images/SnakeHead2.png" alt="image" style="display:none;"/>
-<img @ref="_snakeTail1" id="Tail1Image" src="/images/images/SnakeTail2.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead1" id="head1Image" src="/images/images/SnakeHead1.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail1" id="Tail1Image" src="/images/images/SnakeTail1.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead2" id="head2Image" src="/images/images/SnakeHead2.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail2" id="Tail2Image" src="/images/images/SnakeTail2.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead3" id="head3Image" src="/images/images/SnakeHead3.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail3" id="Tail3Image" src="/images/images/SnakeTail3.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead4" id="head4Image" src="/images/images/SnakeHead4.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail4" id="Tail4Image" src="/images/images/SnakeTail4.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead5" id="head5Image" src="/images/images/SnakeHead5.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail5" id="Tail5Image" src="/images/images/SnakeTail5.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead6" id="head6Image" src="/images/images/SnakeHead6.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail6" id="Tail6Image" src="/images/images/SnakeTail6.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead7" id="head7Image" src="/images/images/SnakeHead7.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail7" id="Tail7Image" src="/images/images/SnakeTail7.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead8" id="head8Image" src="/images/images/SnakeHead8.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail8" id="Tail8Image" src="/images/images/SnakeTail8.png" alt="image" style="display:none;"/>
 <img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.png" alt="image" style="display:none;"/>
+
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -58,9 +74,23 @@
     private ElementReference _powerupImage;
     private ElementReference _snakeHead1;
     private ElementReference _snakeTail1;
+    private ElementReference _snakeHead2;
+    private ElementReference _snakeTail2;
+    private ElementReference _snakeHead3;
+    private ElementReference _snakeTail3;
+    private ElementReference _snakeHead4;
+    private ElementReference _snakeTail4;
+    private ElementReference _snakeHead5;
+    private ElementReference _snakeTail5;
+    private ElementReference _snakeHead6;
+    private ElementReference _snakeTail6;
+    private ElementReference _snakeTail7;
+    private ElementReference _snakeHead7;
+    private ElementReference _snakeTail8;
+    private ElementReference _snakeHead8;
     private ElementReference _wallImage;
     private ElementReference _canvasSpaceImg;
-    
+
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
     private World _copyWorld = new World();
@@ -79,8 +109,8 @@
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
 
             // await _context.SetFillStyleAsync("lightblue");
-             //await _context.FillRectAsync(0, 0, 1000, 1000);
-             await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
+            //await _context.FillRectAsync(0, 0, 1000, 1000);
+            await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
             await Task.Delay(500);
             GameLoop();
         }
@@ -121,12 +151,10 @@
             _copyWorld = newWorld;
         }
 
-      
+
         await _context.BeginBatchAsync();
-        
+
         await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
-        // await _context.SetFillStyleAsync("lightblue");
-        // await _context.FillRectAsync(0, 0, 1000, 1000);
         await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
         await _context.SaveAsync();
         await _context.BeginPathAsync();
@@ -134,7 +162,7 @@
         await _context.ClipAsync();
 
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
-        await _context.ScaleAsync(1.5,1.5);
+        await _context.ScaleAsync(1.5, 1.5);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
         {
@@ -149,7 +177,6 @@
         await _context.DrawImageAsync(_backgroundImage, -_copyWorld.Size / 2, -_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
         if (IsConnectedToServer())
         {
-            
             await DrawWall();
             await DrawPlayer();
             await DrawPowerUps();
@@ -158,8 +185,8 @@
 
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
- 
-       
+
+
         StateHasChanged();
     }
 
@@ -173,22 +200,22 @@
         foreach (Walls wall in _copyWorld.Walls.Values)
         {
             await _context.BeginPathAsync();
-            if (wall.P1.X == wall.P2.X) 
+            if (wall.P1.X == wall.P2.X)
             {
                 int start = Math.Min(wall.P1.Y, wall.P2.Y);
                 int end = Math.Max(wall.P1.Y, wall.P2.Y);
-         
-                for (int i = start; i <= end ; i += 50)
+
+                for (int i = start; i <= end; i += 50)
                 {
                     await _context.DrawImageAsync(_wallImage, wall.P1.X - 25, i - 25, 50, 50);
                 }
             }
 
-            if (wall.P1.Y == wall.P2.Y) 
+            if (wall.P1.Y == wall.P2.Y)
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
-              
+
 
                 for (int i = start; i <= end; i += 50)
                 {
@@ -210,19 +237,13 @@
             {
                 await _context.SetLineWidthAsync(10);
 
-                int color = p.SnakeiD % 8;
-                // switch (color)
-                // {
-                //     case 0: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )"); break;
-                //     case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 0 )"); break;
-                //     case 2: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )"); break;
-                //     case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )"); break;
-                //     case 4: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 255 )"); break;
-                //     case 5: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 255 )"); break;
-                //     case 6: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 255 )"); break;
-                //     case 7: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
-                // }
-                await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )");
+                int coloriD = p.SnakeiD % 8;
+                int headiD = p.SnakeiD % 8;
+                int tailiD = p.SnakeiD % 8;
+                
+                await ColorPicker(coloriD);
+                var headImage = HeadPicker(headiD);
+                var tailImage = TailPicker(tailiD);
 
                 await _context.BeginPathAsync();
 
@@ -232,23 +253,23 @@
                 Point2D direction = p.Dir;
                 if (direction.Y == -1) //up
                 {
-                    await DrawRotatedImage(_snakeTail1, tail.X, tail.Y + 15, 20, 20, 0);
-                    await DrawRotatedImage(_snakeHead1, head.X, head.Y - 10, 20, 20, 0);
+                    await DrawRotatedImage(tailImage, tail.X, tail.Y + 5, 20, 10, 0);
+                    await DrawRotatedImage(headImage, head.X, head.Y - 10, 20, 20, 0);
                 }
                 else if (direction.Y == 1) //Down
                 {
-                    await DrawRotatedImage(_snakeTail1, tail.X, tail.Y - 10, 20, 20, (float)Math.PI);
-                    await DrawRotatedImage(_snakeHead1, head.X, head.Y + 10, 20, 20, (float)Math.PI);
+                    await DrawRotatedImage(tailImage, tail.X, tail.Y - 5, 20, 10, (float)Math.PI);
+                    await DrawRotatedImage(headImage, head.X, head.Y + 10, 20, 20, (float)Math.PI);
                 }
                 else if (direction.X == -1) //left
                 {
-                    await DrawRotatedImage(_snakeTail1, tail.X + 10, tail.Y, 20, 20, (float)-Math.PI / 2);
-                    await DrawRotatedImage(_snakeHead1, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
+                    await DrawRotatedImage(tailImage, tail.X + 5, tail.Y, 20, 10, (float)-Math.PI / 2);
+                    await DrawRotatedImage(headImage, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
                 }
                 else if (direction.X == 1) //right
                 {
-                    await DrawRotatedImage(_snakeTail1, tail.X - 10, tail.Y, 20, 20, (float)Math.PI / 2);
-                    await DrawRotatedImage(_snakeHead1, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
+                    await DrawRotatedImage(tailImage, tail.X - 5, tail.Y, 20, 10, (float)Math.PI / 2);
+                    await DrawRotatedImage(headImage, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
                 }
                 else await _context.MoveToAsync(tail.X, tail.Y);
 
@@ -275,7 +296,6 @@
                 }
             }
         }
-     
     }
 
     /// <summary>
@@ -291,12 +311,12 @@
             {
                 continue;
             }
-            
+
             await _context.SetLineWidthAsync(5);
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
-             await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y -10, 16, 20 );
-           await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+            await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y - 10, 16, 20);
+            await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
     }
@@ -317,5 +337,51 @@
         await _context.RotateAsync(angle);
         await _context.DrawImageAsync(image, -width / 2, -width / 2, width, height);
         await _context.RestoreAsync();
+    }
+
+    private async Task ColorPicker(int ID)
+    {
+        switch (ID)
+        {
+            case 0: await _context.SetStrokeStyleAsync($"rgb( 34, 177, 76 )"); break;
+            case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
+            case 2: await _context.SetStrokeStyleAsync($"rgb( 180, 180, 180 )"); break;
+            case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 194, 14 )"); break;
+            case 4: await _context.SetStrokeStyleAsync($"rgb( 196, 139, 149 )"); break;
+            case 5: await _context.SetStrokeStyleAsync($"rgb( 237, 28, 36 )"); break;
+            case 6: await _context.SetStrokeStyleAsync($"rgb( 0, 183, 239 )"); break;
+            case 7: await _context.SetStrokeStyleAsync($"rgb( 111, 49,152 )"); break;
+        }
+    }
+
+    private ElementReference HeadPicker(int ID)
+    {
+        switch (ID)
+        {
+            case 0: return _snakeHead1;
+            case 1: return _snakeHead2;
+            case 2: return _snakeHead3;
+            case 3: return _snakeHead4;
+            case 4: return _snakeHead5;
+            case 5: return _snakeHead6;
+            case 6: return _snakeHead7;
+            case 7: return _snakeHead8;
+            default: return _snakeHead1;
+        } 
+    }
+    private ElementReference TailPicker(int ID)
+    {
+        switch (ID)
+        {
+            case 0: return _snakeTail1;
+            case 1: return _snakeTail2;
+            case 2: return _snakeTail3;
+            case 3: return _snakeTail4;
+            case 4: return _snakeTail5;
+            case 5: return _snakeTail6;
+            case 6: return _snakeTail7;
+            case 7: return _snakeTail8;
+            default: return _snakeTail1;
+        } 
     }
 } 
