@@ -183,7 +183,11 @@ public class NetworkController
     /// </summary>
     /// <returns>GameWorld</returns>
     public World SendCopyOfWorld()
-    {
-        return _gameWorld;
+    {   
+        
+        lock (_gameWorld)
+        {
+            return _gameWorld;
+        }
     }
 }
