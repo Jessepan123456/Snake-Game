@@ -2,58 +2,61 @@ using System.Text.Json.Serialization;
 
 namespace GUI.Components.Models;
 
+/// <summary>
+///     Represent the Player and it information
+/// </summary>
 public class Player
 {
     /// <summary>
-    /// Snake ID
+    ///     Snake ID
     /// </summary>
     [JsonPropertyName(("snake"))]
     public int  SnakeiD { get; set; }
     
     /// <summary>
-    /// Client Name
+    ///     Client Name
     /// </summary>
     [JsonPropertyName(("name"))]
     public string Name { get; set; }
     
     /// <summary>
-    /// Snake Body Location
+    ///     Snake Body Location
     /// </summary>
     [JsonPropertyName(("body"))]
     public List<Point2D> Body { get; set; }
     
     /// <summary>
-    /// Snake Direction
+    ///     Snake Direction
     /// </summary>
     [JsonPropertyName(("dir"))]
     public Point2D Dir { get; set; }
     
     /// <summary>
-    /// Score
+    ///     Score
     /// </summary>
     [JsonPropertyName(("score"))]
     public int Score { get; set; }
     
     /// <summary>
-    /// Snake Dead
+    ///     Snake Dead
     /// </summary>
     [JsonPropertyName(("dead"))]
     public bool Dead { get; set; }
     
     /// <summary>
-    /// Snake Alive
+    ///     Snake Alive
     /// </summary>
     [JsonPropertyName(("alive"))]
     public bool Alive { get; set; }
     
     /// <summary>
-    /// Client Disconnected
+    ///     Client Disconnected
     /// </summary>
     [JsonPropertyName(("dc"))]
     public bool Dc { get; set; }
     
     /// <summary>
-    /// Client connected/joined
+    ///     Client connected/joined
     /// </summary>
     [JsonPropertyName(("join"))]
     public bool Join {get; set;}

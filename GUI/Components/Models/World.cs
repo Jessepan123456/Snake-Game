@@ -1,24 +1,27 @@
 namespace GUI.Components.Models;
 
+/// <summary>
+///     Represent the Game World when Created
+/// </summary>
 public class World
 {
     /// <summary>
-    /// Player Client
+    ///     Player Client
     /// </summary>
     public Dictionary<int, Player> Player;
     
     /// <summary>
-    /// PowerUp
+    ///     PowerUp
     /// </summary>
     public Dictionary<int, PowerUp> PowerUp;
     
     /// <summary>
-    /// 
+    ///     Walls 
     /// </summary>
     public Dictionary<int, Walls> Walls;
     
     /// <summary>
-    /// World Size
+    ///     World Size
     /// </summary>
     public int Size {get; set;}
 

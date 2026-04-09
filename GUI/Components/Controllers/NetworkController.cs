@@ -8,6 +8,12 @@ using Networking;
 
 namespace GUI.Components.Controllers;
 
+/// <summary>
+/// The NetworkController handles all communication between the client and server.
+/// - Network Connection
+/// - Sending player input
+/// - Receiving data from the server and updating the GUI
+/// </summary>
 public class NetworkController
 {
     private NetworkConnection _connection = new();
@@ -20,6 +26,7 @@ public class NetworkController
 
     /// <summary>
     ///     Connect to the Server
+    ///     Starts a background thread that continuously listens to the server
     /// </summary>
     /// <param name="host"></param>
     /// <param name="port"></param>
@@ -45,7 +52,7 @@ public class NetworkController
     /// <summary>
     ///     Is it connected to the server
     /// </summary>
-    /// <returns>IsConnected</returns>
+    /// <returns>True if connected, false if not</returns>
     public bool IsConnected()
     {
         return _connection.IsConnected;
@@ -54,7 +61,7 @@ public class NetworkController
     /// <summary>
     ///     Help receive data from the server
     /// </summary>
-    /// <returns></returns>
+    /// <returns>ReadLine</returns>
     public string Recv()
     {
         return _connection.ReadLine();
@@ -63,12 +70,17 @@ public class NetworkController
     /// <summary>
     ///     Get the ID from the server for the snakes
     /// </summary>
-    /// <returns></returns>
+    /// <returns>ID</returns>
     public int GetPlayerId()
     {
         return _playerId;
     }
 
+    /// <summary>
+    ///     Continously receives messages from the server.
+    ///     - Each Message are JSON String
+    ///     - We identify them and updates the model
+    /// </summary>
     private void NetworkLoop()
     {
         try
@@ -94,8 +106,10 @@ public class NetworkController
                         {
                             _gameWorld.Player.Remove(player.SnakeiD);
                         }
-
-                        _gameWorld.Player[player.SnakeiD] = player;
+                        else
+                        {
+                            _gameWorld.Player[player.SnakeiD] = player;
+                        }
                     }
                 }
 
@@ -108,8 +122,10 @@ public class NetworkController
                         {
                             _gameWorld.PowerUp.Remove(power.PowerType);
                         }
-
-                        _gameWorld.PowerUp[power.PowerType] = power;
+                        else
+                        {
+                            _gameWorld.PowerUp[power.PowerType] = power;
+                        }
                     }
                 }
 
@@ -125,10 +141,15 @@ public class NetworkController
         }
         catch
         {
-            return;
+            _connection.Disconnect();
         }
     }
 
+    /// <summary>
+    ///     Converts keyboard input into movement commands and sends them to the server
+    ///     as JSON.
+    /// </summary>
+    /// <param name="key"></param>
     public void SendControl(string key)
     {
         Control input = new Control();
@@ -157,6 +178,10 @@ public class NetworkController
         _connection.Send(cmd);
     }
 
+    /// <summary>
+    ///     Send a Copy of the World
+    /// </summary>
+    /// <returns>GameWorld</returns>
     public World SendCopyOfWorld()
     {
         return _gameWorld;

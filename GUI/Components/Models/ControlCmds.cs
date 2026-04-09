@@ -2,10 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace GUI.Components.Models;
 
+/// <summary>
+///     Represent the Control movement
+/// </summary>
 public class Control
 {
     /// <summary>
-    /// Player movement direction
+    ///     Player movement direction
     /// </summary>
     [JsonPropertyName(("moving"))]
     public string Moving { get; set; } = "none";

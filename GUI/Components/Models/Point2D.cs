@@ -1,13 +1,16 @@
 namespace GUI.Components.Models;
 
+/// <summary>
+///     Represent the Point2D X and Y
+/// </summary>
 public class Point2D
 {
     /// <summary>
-    /// X Position
+    ///     X Position
     /// </summary>
     public int X { get; set; }
     /// <summary>
-    /// Y Position
+    ///     Y Position
     /// </summary>
     public int Y { get; set; } 
     

@@ -10,11 +10,10 @@
 <PageTitle> Snake</PageTitle>
 
 <img @ref="_backgroundImage" id="bgImage" src="/images/images/Grass.png" alt="image" style="display:none;"/>
-<img @ref="_wallImage" id="wallImage" src="/images/images/Wall.png" alt="walling"style="display:none;"/>
+<img @ref="_wallImage" id="wallImage" src="/images/images/Walls.png" alt="walling" style="display:none;"/>
 <img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>
-<img @ref="_snakeHead1" id="head1Image" src="/images/images/guy1head.png" alt="image" style="display:none;"/>
-<img @ref="_snakeTail1" id="Tail1Image" src="/images/images/guy1legs.png" alt="image" style="display:none;"/>
-<img @ref="_snakeBody1" id="Body1Image" src="/images/images/guy1body.png" alt="image" style="display:none;"/>
+<img @ref="_snakeHead1" id="head1Image" src="/images/images/SnakeHead1.png" alt="image" style="display:none;"/>
+<img @ref="_snakeTail1" id="Tail1Image" src="/images/images/SnakeTail1.png" alt="image" style="display:none;"/>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -48,14 +47,18 @@
     private ElementReference _backgroundImage;
     private ElementReference _powerupImage;
     private ElementReference _snakeHead1;
-    private ElementReference _snakeBody1;
     private ElementReference _snakeTail1;
     private ElementReference _wallImage;
+    
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
     private World _copyWorld = new World();
     private int _snakeId;
 
+    /// <summary>
+    ///     Initialized the canvas and starts the game loop when finish
+    /// </summary>
+    /// <param name="firstRender"></param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -64,8 +67,6 @@
             _context = await _canvasReference.CreateCanvas2DAsync();
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
 
-            // in the meantime, draw something to initialize the canvas
-            // you may want to remove this after you are drawing something
             await _context.SetFillStyleAsync("lightblue");
             await _context.FillRectAsync(0, 0, 1000, 1000);
             await Task.Delay(200);
@@ -73,12 +74,19 @@
         }
     }
 
+    /// <summary>
+    ///     Handles all the Key Press and send them to the Network Controller
+    /// </summary>
+    /// <param name="key"></param>
     [JSInvokable]
     public void HandleKeyPress(string key)
     {
         SendKeyCmd(key);
     }
 
+    /// <summary>
+    ///     Runs the main game loop asynchronously
+    /// </summary>
     private async void GameLoop()
     {
         while (true)
@@ -88,6 +96,11 @@
         }
     }
 
+    /// <summary>
+    ///     Draws a single frame of the game
+    ///     -Draws background, Walls, Snakes, and Powerups
+    ///     -Centers the View
+    /// </summary>
     private async Task DrawFrame()
     {
         World newWorld = ReceiveWorld();
@@ -104,7 +117,7 @@
         await _context.BeginPathAsync();
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
-        
+
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
@@ -128,12 +141,17 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    ///     Draws all the Walls
+    ///     - Vertical Walls
+    ///     - Horizontal Walls
+    /// </summary>
     private async Task DrawWall()
     {
         foreach (Walls wall in _copyWorld.Walls.Values)
         {
             await _context.BeginPathAsync();
-            if (wall.P1.X == wall.P2.X) //vertical wall
+            if (wall.P1.X == wall.P2.X) 
             {
                 int start = Math.Min(wall.P1.Y, wall.P2.Y);
                 int end = Math.Max(wall.P1.Y, wall.P2.Y);
@@ -145,7 +163,7 @@
                 }
             }
 
-            if (wall.P1.Y == wall.P2.Y) //horizontal wall
+            if (wall.P1.Y == wall.P2.Y) 
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
@@ -159,65 +177,71 @@
         }
     }
 
+    /// <summary>
+    ///     Draws the players
+    ///     - Images with rotating heads and tail
+    /// </summary>
     private async Task DrawPlayer()
     {
         foreach (Player p in _copyWorld.Player.Values)
         {
             await _context.SetLineWidthAsync(10);
-            //
-            // int color = p.SnakeiD % 8;
-            // switch (color)
-            // {
-            //     case 0: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )"); break;
-            //     case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 0 )"); break;
-            //     case 2: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )"); break;
-            //     case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )"); break;
-            //     case 4: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 255 )"); break;
-            //     case 5: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 255 )"); break;
-            //     case 6: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 255 )"); break;
-            //     case 7: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
-            // }
-            await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )");
-           await _context.BeginPathAsync();
+            
+            int color = p.SnakeiD % 8;
+            switch (color)
+            {
+                case 0: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )"); break;
+                case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 0 )"); break;
+                case 2: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )"); break;
+                case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )"); break;
+                case 4: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 255 )"); break;
+                case 5: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 255 )"); break;
+                case 6: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 255 )"); break;
+                case 7: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
+            }
+            await _context.BeginPathAsync();
 
 
             Point2D tail = p.Body[0];
             Point2D head = p.Body[p.Body.Count - 1];
-            Point2D Direction = p.Dir;
-            // await _context.DrawImageAsync(_snakeTail1, tail.X-10, tail.Y, 20, 20);
-            // await _context.DrawImageAsync(_snakeHead1, head.X-10, head.Y -15, 20, 20);
-            if (Direction.Y == -1) //up
+            Point2D direction = p.Dir;
+            if (direction.Y == -1) //up
             {
-                await DrawRotatedImage(_snakeTail1, tail.X, tail.Y +15, 20, 20, 0);
-                await DrawRotatedImage(_snakeHead1, head.X , head.Y -10, 20, 20, 0);
-            }  
-            else if (Direction.Y == 1)//Down
+                await DrawRotatedImage(_snakeTail1, tail.X, tail.Y + 15, 20, 20, 0);
+                await DrawRotatedImage(_snakeHead1, head.X, head.Y - 10, 20, 20, 0);
+            }
+            else if (direction.Y == 1) //Down
             {
-                await DrawRotatedImage(_snakeTail1, tail.X , tail.Y -10, 20, 20, (float) Math.PI);
-                await DrawRotatedImage(_snakeHead1, head.X , head.Y +10  , 20, 20, (float) Math.PI);
-            } 
-           else if (Direction.X == -1) //left
-           {
-               await DrawRotatedImage(_snakeTail1, tail.X + 10 , tail.Y, 20, 20, (float) -Math.PI/2);
-               await DrawRotatedImage(_snakeHead1, head.X - 10  , head.Y  , 20, 20, (float) -Math.PI/2);
-           } 
-           else  if (Direction.X == 1) //right
+                await DrawRotatedImage(_snakeTail1, tail.X, tail.Y - 10, 20, 20, (float)Math.PI);
+                await DrawRotatedImage(_snakeHead1, head.X, head.Y + 10, 20, 20, (float)Math.PI);
+            }
+            else if (direction.X == -1) //left
             {
-                await DrawRotatedImage(_snakeTail1, tail.X - 10, tail.Y, 20, 20, (float) Math.PI/2); 
-                await DrawRotatedImage(_snakeHead1, head.X + 10, head.Y , 20, 20, (float) Math.PI/2);
-            } 
-           else  await _context.MoveToAsync(tail.X, tail.Y);
-            
+                await DrawRotatedImage(_snakeTail1, tail.X + 10, tail.Y, 20, 20, (float)-Math.PI / 2);
+                await DrawRotatedImage(_snakeHead1, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
+            }
+            else if (direction.X == 1) //right
+            {
+                await DrawRotatedImage(_snakeTail1, tail.X - 10, tail.Y, 20, 20, (float)Math.PI / 2);
+                await DrawRotatedImage(_snakeHead1, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
+            }
+            else await _context.MoveToAsync(tail.X, tail.Y);
+
             foreach (Point2D point in p.Body)
             {
                 await _context.LineToAsync(point.X, point.Y);
             }
             
-
+            await _context.SetFontAsync("16px Arial");
+            await _context.SetFillStyleAsync("white"); // choose text color
+            await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
             await _context.StrokeAsync();
         }
     }
 
+    /// <summary>
+    ///     Draws the PowerUps
+    /// </summary>
     private async Task DrawPowerUps()
     {
         foreach (PowerUp p in _copyWorld.PowerUp.Values)
@@ -228,8 +252,7 @@
             {
                 continue;
             }
-
-            // smaller yellow circle for powerups
+            
             await _context.SetLineWidthAsync(5);
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
@@ -238,12 +261,22 @@
             await _context.StrokeAsync();
         }
     }
-    private async Task DrawRotatedImage(ElementReference image, double x, double y, double height, double width ,float angle)
+
+    /// <summary>
+    ///     Helper method that allow images to be rotated based on the client key input direction
+    /// </summary>
+    /// <param name="image"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="height"></param>
+    /// <param name="width"></param>
+    /// <param name="angle"></param>
+    private async Task DrawRotatedImage(ElementReference image, double x, double y, double height, double width, float angle)
     {
-        await _context.SaveAsync();  
+        await _context.SaveAsync();
         await _context.TranslateAsync(x, y);
         await _context.RotateAsync(angle);
-        await _context.DrawImageAsync(image, -width/2, -width/2, width, height);
+        await _context.DrawImageAsync(image, -width / 2, -width / 2, width, height);
         await _context.RestoreAsync();
     }
 } 
