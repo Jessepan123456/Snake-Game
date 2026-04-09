@@ -51,7 +51,7 @@
     private ElementReference _snakeTail1;
     private ElementReference _wallImage;
     private ElementReference _canvasSpaceImg;
-
+    
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
     private World _copyWorld = new World();
@@ -70,8 +70,8 @@
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
 
             // await _context.SetFillStyleAsync("lightblue");
-            //await _context.FillRectAsync(0, 0, 1000, 1000);
-            await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
+             //await _context.FillRectAsync(0, 0, 1000, 1000);
+             await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
             await Task.Delay(500);
             GameLoop();
         }
@@ -139,11 +139,11 @@
         await DrawPlayer();
         await DrawPowerUps();
 
-
+      
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
-
-        await _context.ScaleAsync(1, 1);
+ 
+        await _context.ScaleAsync(1 ,1);
         StateHasChanged();
     }
 
@@ -157,7 +157,7 @@
         foreach (Walls wall in _copyWorld.Walls.Values)
         {
             await _context.BeginPathAsync();
-            if (wall.P1.X == wall.P2.X)
+            if (wall.P1.X == wall.P2.X) 
             {
                 int start = Math.Min(wall.P1.Y, wall.P2.Y);
                 int end = Math.Max(wall.P1.Y, wall.P2.Y);
@@ -169,7 +169,7 @@
                 }
             }
 
-            if (wall.P1.Y == wall.P2.Y)
+            if (wall.P1.Y == wall.P2.Y) 
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
@@ -210,6 +210,7 @@
                 await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )");
 
                 await _context.BeginPathAsync();
+
 
                 Point2D tail = p.Body[0];
                 Point2D head = p.Body[p.Body.Count - 1];
@@ -259,6 +260,7 @@
                 }
             }
         }
+     
     }
 
     /// <summary>
@@ -274,15 +276,16 @@
             {
                 continue;
             }
+            
             await _context.SetLineWidthAsync(5);
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
-            await _context.DrawImageAsync(_powerupImage, loc.X - 10, loc.Y - 5, 16, 16);
-            // await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+             await _context.DrawImageAsync(_powerupImage, loc.X - 10, loc.Y -5, 16, 16 );
+           // await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
     }
-    
+
     /// <summary>
     ///     Helper method that allow images to be rotated based on the client key input direction
     /// </summary>
