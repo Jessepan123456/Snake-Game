@@ -14,6 +14,7 @@
 <img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>
 <img @ref="_snakeHead1" id="head1Image" src="/images/images/SnakeHead2.png" alt="image" style="display:none;"/>
 <img @ref="_snakeTail1" id="Tail1Image" src="/images/images/SnakeTail2.png" alt="image" style="display:none;"/>
+<img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.jpg" alt="image" style="display:none;"/>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -49,6 +50,7 @@
     private ElementReference _snakeHead1;
     private ElementReference _snakeTail1;
     private ElementReference _wallImage;
+    private ElementReference _canvasSpaceImg;
     
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
@@ -67,9 +69,10 @@
             _context = await _canvasReference.CreateCanvas2DAsync();
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
 
-            await _context.SetFillStyleAsync("lightblue");
-            await _context.FillRectAsync(0, 0, 1000, 1000);
-            await Task.Delay(200);
+            // await _context.SetFillStyleAsync("lightblue");
+             //await _context.FillRectAsync(0, 0, 1000, 1000);
+             await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
+            await Task.Delay(500);
             GameLoop();
         }
     }
@@ -111,8 +114,9 @@
 
         await _context.BeginBatchAsync();
         await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
-        await _context.SetFillStyleAsync("lightblue");
-        await _context.FillRectAsync(0, 0, 1000, 1000);
+        // await _context.SetFillStyleAsync("lightblue");
+        // await _context.FillRectAsync(0, 0, 1000, 1000);
+        await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
         await _context.SaveAsync();
         await _context.BeginPathAsync();
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
