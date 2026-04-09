@@ -112,7 +112,9 @@
             _copyWorld = newWorld;
         }
 
+      
         await _context.BeginBatchAsync();
+        
         await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
         // await _context.SetFillStyleAsync("lightblue");
         // await _context.FillRectAsync(0, 0, 1000, 1000);
@@ -123,6 +125,7 @@
         await _context.ClipAsync();
 
         await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
+        await _context.ScaleAsync(1.5,1.5);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
         {
@@ -135,15 +138,19 @@
         }
 
         await _context.DrawImageAsync(_backgroundImage, -_copyWorld.Size / 2, -_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
-        await DrawWall();
-        await DrawPlayer();
-        await DrawPowerUps();
+        if (IsConnectedToServer())
+        {
+            
+            await DrawWall();
+            await DrawPlayer();
+            await DrawPowerUps();
+        }
 
-      
+
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
  
-        await _context.ScaleAsync(1 ,1);
+       
         StateHasChanged();
     }
 
@@ -161,9 +168,8 @@
             {
                 int start = Math.Min(wall.P1.Y, wall.P2.Y);
                 int end = Math.Max(wall.P1.Y, wall.P2.Y);
-                int extra = (end - start) % 50;
-
-                for (int i = start; i <= end + extra; i += 50)
+         
+                for (int i = start; i <= end ; i += 50)
                 {
                     await _context.DrawImageAsync(_wallImage, wall.P1.X - 25, i - 25, 50, 50);
                 }
@@ -173,9 +179,9 @@
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
-                int extra = (end - start) % 50;
+              
 
-                for (int i = start; i <= end + extra; i += 50)
+                for (int i = start; i <= end; i += 50)
                 {
                     await _context.DrawImageAsync(_wallImage, i - 25, wall.P1.Y - 25, 50, 50);
                 }
@@ -280,8 +286,8 @@
             await _context.SetLineWidthAsync(5);
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
-             await _context.DrawImageAsync(_powerupImage, loc.X - 10, loc.Y -5, 16, 16 );
-           // await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+             await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y -10, 16, 20 );
+           await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
     }
