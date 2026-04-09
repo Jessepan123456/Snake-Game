@@ -84,6 +84,7 @@ public class NetworkController
             while (IsConnected())
             {
                 string mess = Recv();
+               
                 if (Regex.IsMatch(mess, _playerPattern))
                 {
                     Player? player = JsonSerializer.Deserialize<Player>(mess);
