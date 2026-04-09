@@ -9,12 +9,12 @@
 
 <PageTitle> Snake</PageTitle>
 
-<img @ref="_backgroundImage" id="bgImage" src="/images/images/Grass.png" alt="image" style="display:none;"/>
+<img @ref="_backgroundImage" id="bgImage" src="/images/images/Earth.png" alt="image" style="display:none;"/>
 <img @ref="_wallImage" id="wallImage" src="/images/images/Walls.png" alt="walling" style="display:none;"/>
-<img @ref="_powerupImage" id="puImage" src="/images/images/laoganma.png" alt="image" style="display:none;"/>
+<img @ref="_powerupImage" id="puImage" src="/images/images/PowerUp.png" alt="image" style="display:none;"/>
 <img @ref="_snakeHead1" id="head1Image" src="/images/images/SnakeHead2.png" alt="image" style="display:none;"/>
 <img @ref="_snakeTail1" id="Tail1Image" src="/images/images/SnakeTail2.png" alt="image" style="display:none;"/>
-<img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.jpg" alt="image" style="display:none;"/>
+<img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.png" alt="image" style="display:none;"/>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -139,9 +139,11 @@
         await DrawPlayer();
         await DrawPowerUps();
 
+      
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
-
+ 
+        await _context.ScaleAsync(1 ,1);
         StateHasChanged();
     }
 
@@ -194,17 +196,18 @@
                 await _context.SetLineWidthAsync(10);
 
                 int color = p.SnakeiD % 8;
-                switch (color)
-                {
-                    case 0: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )"); break;
-                    case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 0 )"); break;
-                    case 2: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )"); break;
-                    case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )"); break;
-                    case 4: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 255 )"); break;
-                    case 5: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 255 )"); break;
-                    case 6: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 255 )"); break;
-                    case 7: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
-                }
+                // switch (color)
+                // {
+                //     case 0: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 0 )"); break;
+                //     case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 0 )"); break;
+                //     case 2: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 255 )"); break;
+                //     case 3: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )"); break;
+                //     case 4: await _context.SetStrokeStyleAsync($"rgb( 0, 255, 255 )"); break;
+                //     case 5: await _context.SetStrokeStyleAsync($"rgb( 255, 0, 255 )"); break;
+                //     case 6: await _context.SetStrokeStyleAsync($"rgb( 255, 255, 255 )"); break;
+                //     case 7: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
+                // }
+                await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )");
 
                 await _context.BeginPathAsync();
 
@@ -240,7 +243,7 @@
                 }
 
                 await _context.SetFontAsync("16px Arial");
-                await _context.SetFillStyleAsync("white"); // choose text color
+                await _context.SetFillStyleAsync("Black"); // choose text color
                 await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
                 await _context.StrokeAsync();
             }
@@ -278,7 +281,7 @@
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
              await _context.DrawImageAsync(_powerupImage, loc.X - 10, loc.Y -5, 16, 16 );
-            await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+           // await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
     }
