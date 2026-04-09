@@ -32,7 +32,16 @@
         <button @onclick="ConnectToServer"> Connect</button>
     }
 </div>
-
+<div>
+    @if (IsError)
+    {
+        <div class="centered-card text-center">
+            <span>connection error</span>
+            <br/>
+            <button class="btn btn-danger" @onclick="DismissError">OK</button>
+        </div>
+    }
+</div>
 
 
 <div id="snakeCanvas" style="position: fixed; width: 100%; height: 100%">

@@ -31,12 +31,21 @@ public partial class SnakeGUI
     /// </summary>
     NetworkController _controller = new NetworkController();
 
+    private bool IsError = false;
+
     /// <summary>
     ///     Connect to Server
     /// </summary>
     private void ConnectToServer()
     {
-        _controller.Connect(_serverAddress, _port, _name);
+        try
+        {
+            _controller.Connect(_serverAddress, _port, _name);
+        }
+        catch
+        {
+            IsError = true;
+        }
     }
 
     /// <summary>
@@ -90,5 +99,10 @@ public partial class SnakeGUI
     public int GetPlayerId()
     {
         return _controller.GetPlayerId();
+    }
+
+    private void DismissError()
+    {
+        IsError = false;
     }
 }
