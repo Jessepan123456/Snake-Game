@@ -32,6 +32,8 @@
 <img @ref="_snakeTail8" id="Tail8Image" src="/images/images/SnakeTail8.png" alt="image" style="display:none;"/>
 <img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.png" alt="image" style="display:none;"/>
 
+@* <audio id="deathSound" src="wwwroot/Audio/DeathAudio.mp3"></audio> *@
+
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -300,10 +302,11 @@
                 if (p.SnakeiD == _snakeId)
                 {
                     await _context.SetFontAsync("50px Arial");
-                    await _context.SetFillStyleAsync("Black"); // choose text color
+                    await _context.SetFillStyleAsync("Red"); // choose text color
 
                     Point2D head = p.Body[p.Body.Count - 1];
                     await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
+                    await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
                     await _context.StrokeAsync();
                 }
             }
@@ -390,7 +393,7 @@
             default: return _snakeHead1;
         } 
     }
-    
+
     /// <summary>
     ///     Helper method that help decided which image of SnakeTail should be displayed based on SnakeID
     /// </summary>
@@ -409,6 +412,6 @@
             case 6: return _snakeTail7;
             case 7: return _snakeTail8;
             default: return _snakeTail1;
-        } 
+        }
     }
 } 
