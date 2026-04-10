@@ -1,9 +1,6 @@
-using System.Net;
-using System.Net.Sockets;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using GUI.Components.Models;
-using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Networking;
 
 namespace GUI.Components.Controllers;
@@ -19,12 +16,11 @@ public class NetworkController
     private NetworkConnection _connection = new();
 
     private World _gameWorld = new World();
-    private World _cloneWorld = new World();
     private String _playerPattern = "snake";
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
-    private int _playerId = 0;
-    private object locker = new object();
+    private int _playerId;
+    private object _locker = new object();
 
     /// <summary>
     ///     Connect to the Server
@@ -88,7 +84,7 @@ public class NetworkController
     {
         try
         {
-            lock (locker)
+            lock (_locker)
             {
                 string id = Recv();
                 _playerId = int.Parse(id);
@@ -108,7 +104,7 @@ public class NetworkController
                     Player? player = JsonSerializer.Deserialize<Player>(mess);
                     if (player != null)
                     {
-                        lock (locker)
+                        lock (_locker)
                         {
                             if (player.Dc)
                             {
@@ -127,7 +123,7 @@ public class NetworkController
                     PowerUp? power = JsonSerializer.Deserialize<PowerUp>(mess);
                     if (power != null)
                     {
-                        lock (locker)
+                        lock (_locker)
                         {
                             if (power.Died)
                             {
@@ -146,7 +142,7 @@ public class NetworkController
                     Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
                     if (wall != null)
                     {
-                        lock (locker)
+                        lock (_locker)
                         {
                             _gameWorld.Walls[wall.WallType] = wall;
                         }   
@@ -199,10 +195,11 @@ public class NetworkController
     /// <returns>GameWorld</returns>
     public World SendCopyOfWorld()
     {
-        lock (locker)
+        World cloneWorld;
+        lock (_gameWorld)
         {
-            _cloneWorld = new World(_gameWorld);
-            return _cloneWorld;
+            cloneWorld = new World(_gameWorld);
+            return cloneWorld;
         }
     }
 }

@@ -3,9 +3,6 @@
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas
 @using Blazor.Extensions.Canvas.Canvas2D
-@using System.Diagnostics
-@using System.Drawing
-@using System.Reflection.Metadata.Ecma335
 @using GUI.Components.Models;
 @inject IJSRuntime JsRuntime;
 
@@ -32,8 +29,7 @@
 <img @ref="_snakeTail8" id="Tail8Image" src="/images/images/SnakeTail8.png" alt="image" style="display:none;"/>
 <img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.png" alt="image" style="display:none;"/>
 
-<audio id="deathSound" src="wwwroot/Audio/DeathAudio.mp3"></audio>
-
+<audio id="deathSound" src="/Audio/DeathAudio.mp3"></audio>
 
 <div id="ConnectionInputs">
     <label> Name: </label>
@@ -44,24 +40,19 @@
     <input disabled="@IsDisableInput()" type="number" @bind="_port"/>
     @if (IsConnectedToServer())
     {
-        <button @onclick="DisconnectFromServer"> Disconnect</button>
+        <button style="background-color: red; color: white;" @onclick="DisconnectFromServer"> Disconnect</button>
     }
-    else
+    else if (_isError)
     {
-        <button @onclick="ConnectToServer"> Connect</button>
+        <button style="background-color: dodgerblue; color: white;" @onclick="ConnectToServer"> Retry </button> 
+        <br />
+        <label> @_errorMessage</label>
+     }
+    else 
+    {
+        <button style="background-color: dodgerblue; color: white;" @onclick="ConnectToServer"> Connect</button>
     }
 </div>
-<div>
-    @if (IsError)
-    {
-        <div class="centered-card text-center">
-            <span>connection error</span>
-            <br/>
-            <button class="btn btn-danger" @onclick="DismissError">OK</button>
-        </div>
-    }
-</div>
-
 
 <div id="snakeCanvas" style="position: fixed; width: 100%; height: 100%">
     <BECanvas Width="2000" Height="1000" @ref="_canvasReference"></BECanvas>
@@ -112,7 +103,10 @@
     ///     Client Snake ID 
     /// </summary>
     private int _snakeId;
-
+    /// <summary>
+    ///trigger to play sound
+    /// </summary>
+    private bool _playSound = true;
     /// <summary>
     ///     Initialized the canvas and starts the game loop when finish
     /// </summary>
@@ -174,23 +168,22 @@
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
 
-        await _context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
+        await _context.TranslateAsync((double) ViewWidth / 2, (double) ViewHeight / 2);
         await _context.ScaleAsync(1.5, 1.5);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
         {
             if (player.Body.Count > 0)
             {
-                if (!player.Dc && player.Alive && player.Body.Count > 0)
-                {
+               
                     int snakeHeadIndex = player.Body.Count - 1;
                     Point2D head = player.Body[snakeHeadIndex];
                     await _context.TranslateAsync(-head.X, -head.Y);
-                }
+                
             }
         }
 
-        await _context.DrawImageAsync(_backgroundImage, -_copyWorld.Size / 2, -_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
+        await _context.DrawImageAsync(_backgroundImage, (double) -_copyWorld.Size / 2, (double)-_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
         if (IsConnectedToServer())
         {
             await DrawWall();
@@ -253,9 +246,8 @@
             }
 
             if (p.Alive)
-            
-
             {
+                     _playSound = true;
                     await _context.SetLineWidthAsync(10);
 
                     int coloriD = p.SnakeiD % 8;
@@ -313,6 +305,16 @@
                 {
                     if (p.SnakeiD == _snakeId)
                     {
+                        if (_playSound)
+                        {
+                            Console.WriteLine("Hi");
+                            await JsRuntime.InvokeVoidAsync(
+                                "eval",
+                                "let a=document.getElementById('deathSound'); a.currentTime=0; a.play();"
+                            );
+                        }
+                        _playSound = false;
+
                         await _context.SetFontAsync("50px Arial");
                         await _context.SetFillStyleAsync("Red"); // choose text color
 
