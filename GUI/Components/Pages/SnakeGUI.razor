@@ -181,9 +181,12 @@
         {
             if (player.Body.Count > 0)
             {
-                int snakeHeadIndex = player.Body.Count - 1;
-                Point2D head = player.Body[snakeHeadIndex];
-                await _context.TranslateAsync(-head.X, -head.Y);
+                if (!player.Dc && player.Alive && player.Body.Count > 0)
+                {
+                    int snakeHeadIndex = player.Body.Count - 1;
+                    Point2D head = player.Body[snakeHeadIndex];
+                    await _context.TranslateAsync(-head.X, -head.Y);
+                }
             }
         }
 
@@ -241,12 +244,11 @@
     /// </summary>
     private async Task DrawPlayer()
     {
-        List<int> snakesToRemove = new List<int>();
+      
         foreach (Player p in _copyWorld.Player.Values)
         {
             if (p.Dc)
             {
-                snakesToRemove.Add(p.SnakeiD);
                 continue;
             }
 
@@ -324,10 +326,7 @@
             
         }
 
-        foreach (int snakes in snakesToRemove)
-        {
-            _copyWorld.Player.Remove(snakes);
-        }
+      
     }
 
     /// <summary>
@@ -348,7 +347,7 @@
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
             await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y - 10, 16, 20);
-            await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+            //await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
     }

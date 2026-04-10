@@ -48,6 +48,7 @@ public class NetworkController
     /// </summary>
     public void Disconnect()
     {
+        _gameWorld = new World();
         _connection.Disconnect();
     }
 
@@ -113,8 +114,8 @@ public class NetworkController
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
                             }
-                            else
-                            {
+                            else 
+                            { 
                                 _gameWorld.Player[player.SnakeiD] = player;
                             }
                         }
