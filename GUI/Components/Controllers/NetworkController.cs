@@ -19,6 +19,7 @@ public class NetworkController
     private NetworkConnection _connection = new();
 
     private World _gameWorld = new World();
+    private World _cloneWorld = new World();
     private String _playerPattern = "snake";
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
@@ -199,7 +200,8 @@ public class NetworkController
     {
         lock (locker)
         {
-            return _gameWorld;
+            _cloneWorld = new World(_gameWorld);
+            return _cloneWorld;
         }
     }
 }
