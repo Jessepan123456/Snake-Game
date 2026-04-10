@@ -5,6 +5,7 @@
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Diagnostics
 @using System.Drawing
+@using System.Reflection.Metadata.Ecma335
 @using GUI.Components.Models;
 @inject IJSRuntime JsRuntime;
 
@@ -70,6 +71,9 @@
     private Canvas2DContext _context = null!;
     private IJSObjectReference? _jsModule;
 
+    /// <summary>
+    ///     Images References
+    /// </summary>
     private ElementReference _backgroundImage;
     private ElementReference _powerupImage;
     private ElementReference _snakeHead1;
@@ -91,9 +95,20 @@
     private ElementReference _wallImage;
     private ElementReference _canvasSpaceImg;
 
+    /// <summary>
+    ///     View Width and Height from client
+    /// </summary>
     private const int ViewWidth = 1000;
     private const int ViewHeight = 1000;
+    
+    /// <summary>
+    ///     Copy of the World when created
+    /// </summary>
     private World _copyWorld = new World();
+    
+    /// <summary>
+    ///     Client Snake ID 
+    /// </summary>
     private int _snakeId;
 
     /// <summary>
@@ -110,8 +125,8 @@
 
             // await _context.SetFillStyleAsync("lightblue");
             //await _context.FillRectAsync(0, 0, 1000, 1000);
-            await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
             await Task.Delay(500);
+            await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
             GameLoop();
         }
     }
@@ -133,7 +148,7 @@
     {
         while (true)
         {
-            Thread.Sleep(20);
+            await Task.Delay(20);
             await DrawFrame();
         }
     }
@@ -146,12 +161,8 @@
     private async Task DrawFrame()
     {
         World newWorld = ReceiveWorld();
-        lock (_copyWorld)
-        {
-            _copyWorld = newWorld;
-        }
-
-
+        _copyWorld = newWorld;
+        
         await _context.BeginBatchAsync();
 
         await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
@@ -181,12 +192,10 @@
             await DrawPlayer();
             await DrawPowerUps();
         }
-
-
+        
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
-
-
+        
         StateHasChanged();
     }
 
@@ -215,8 +224,7 @@
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
-
-
+                
                 for (int i = start; i <= end; i += 50)
                 {
                     await _context.DrawImageAsync(_wallImage, i - 25, wall.P1.Y - 25, 50, 50);
@@ -248,6 +256,10 @@
                 await _context.BeginPathAsync();
 
 
+                if (p.Body.Count == 0)
+                {
+                    continue;
+                }
                 Point2D tail = p.Body[0];
                 Point2D head = p.Body[p.Body.Count - 1];
                 Point2D direction = p.Dir;
@@ -339,9 +351,13 @@
         await _context.RestoreAsync();
     }
 
-    private async Task ColorPicker(int ID)
+    /// <summary>
+    ///     Helper method that help changes the color of the snakes body using their ID
+    /// </summary>
+    /// <param name="id"></param>
+    private async Task ColorPicker(int id)
     {
-        switch (ID)
+        switch (id)
         {
             case 0: await _context.SetStrokeStyleAsync($"rgb( 34, 177, 76 )"); break;
             case 1: await _context.SetStrokeStyleAsync($"rgb( 0, 0, 0 )"); break;
@@ -354,9 +370,14 @@
         }
     }
 
-    private ElementReference HeadPicker(int ID)
+    /// <summary>
+    ///     Helper method that help decided which image of SnakeHead should be displayed based on SnakeID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    private ElementReference HeadPicker(int id)
     {
-        switch (ID)
+        switch (id)
         {
             case 0: return _snakeHead1;
             case 1: return _snakeHead2;
@@ -369,9 +390,15 @@
             default: return _snakeHead1;
         } 
     }
-    private ElementReference TailPicker(int ID)
+    
+    /// <summary>
+    ///     Helper method that help decided which image of SnakeTail should be displayed based on SnakeID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    private ElementReference TailPicker(int id)
     {
-        switch (ID)
+        switch (id)
         {
             case 0: return _snakeTail1;
             case 1: return _snakeTail2;

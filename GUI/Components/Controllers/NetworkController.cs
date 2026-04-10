@@ -23,6 +23,7 @@ public class NetworkController
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
     private int _playerId = 0;
+    private object locker = new object();
 
     /// <summary>
     ///     Connect to the Server
@@ -85,13 +86,16 @@ public class NetworkController
     {
         try
         {
-            string id = Recv();
-            _playerId = int.Parse(id);
-            Player client = new Player();
-            _gameWorld.Player.Add(int.Parse(id), client);
+            lock (locker)
+            {
+                string id = Recv();
+                _playerId = int.Parse(id);
+                Player client = new Player();
+                _gameWorld.Player.Add(int.Parse(id), client);
 
-            string size = Recv();
-            _gameWorld.Size = int.Parse(size);
+                string size = Recv();
+                _gameWorld.Size = int.Parse(size);
+            }
 
             while (IsConnected())
             {
@@ -102,13 +106,16 @@ public class NetworkController
                     Player? player = JsonSerializer.Deserialize<Player>(mess);
                     if (player != null)
                     {
-                        if (player.Dc)
+                        lock (locker)
                         {
-                            _gameWorld.Player.Remove(player.SnakeiD);
-                        }
-                        else
-                        {
-                            _gameWorld.Player[player.SnakeiD] = player;
+                            if (player.Dc)
+                            {
+                                _gameWorld.Player.Remove(player.SnakeiD);
+                            }
+                            else
+                            {
+                                _gameWorld.Player[player.SnakeiD] = player;
+                            }
                         }
                     }
                 }
@@ -118,13 +125,16 @@ public class NetworkController
                     PowerUp? power = JsonSerializer.Deserialize<PowerUp>(mess);
                     if (power != null)
                     {
-                        if (power.Died)
+                        lock (locker)
                         {
-                            _gameWorld.PowerUp.Remove(power.PowerType);
-                        }
-                        else
-                        {
-                            _gameWorld.PowerUp[power.PowerType] = power;
+                            if (power.Died)
+                            {
+                                _gameWorld.PowerUp.Remove(power.PowerType);
+                            }
+                            else
+                            {
+                                _gameWorld.PowerUp[power.PowerType] = power;
+                            }
                         }
                     }
                 }
@@ -134,7 +144,10 @@ public class NetworkController
                     Walls? wall = JsonSerializer.Deserialize<Walls>(mess);
                     if (wall != null)
                     {
-                        _gameWorld.Walls[wall.WallType] = wall;
+                        lock (locker)
+                        {
+                            _gameWorld.Walls[wall.WallType] = wall;
+                        }   
                     }
                 }
             }
@@ -183,9 +196,8 @@ public class NetworkController
     /// </summary>
     /// <returns>GameWorld</returns>
     public World SendCopyOfWorld()
-    {   
-        
-        lock (_gameWorld)
+    {
+        lock (locker)
         {
             return _gameWorld;
         }
