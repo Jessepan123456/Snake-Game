@@ -31,8 +31,10 @@ public partial class SnakeGUI
     /// </summary>
     NetworkController _controller = new NetworkController();
 
+    /// <summary>
+    ///     Error displayed when user failed to connect to the server
+    /// </summary>
     private bool _isError = false;
-    private string _errorMessage = "";
 
     /// <summary>
     ///     Connect to Server
@@ -44,9 +46,8 @@ public partial class SnakeGUI
             _controller.Connect(_serverAddress, _port, _name);
             _isError = false;
         }
-        catch (Exception e)
+        catch
         {
-            _errorMessage = e.Message;
             _isError = true;
         }
     }
@@ -104,6 +105,4 @@ public partial class SnakeGUI
     {
         return _controller.GetPlayerId();
     }
-
-
 }
