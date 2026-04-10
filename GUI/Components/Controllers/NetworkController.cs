@@ -13,13 +13,32 @@ namespace GUI.Components.Controllers;
 /// </summary>
 public class NetworkController
 {
+    /// <summary>
+    ///     Network Connection
+    /// </summary>
     private NetworkConnection _connection = new();
 
+    /// <summary>
+    ///     Main Game World
+    /// </summary>
     private World _gameWorld = new World();
+
+    /// <summary>
+    ///     Regex pattern for JSON Deserializing for Walls, Players, PowerUps
+    /// </summary>
     private String _playerPattern = "snake";
+
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
+
+    /// <summary>
+    ///     Player ID
+    /// </summary>
     private int _playerId;
+
+    /// <summary>
+    ///     Lock for Locking
+    /// </summary>
     private object _locker = new object();
 
     /// <summary>
@@ -98,7 +117,7 @@ public class NetworkController
             while (IsConnected())
             {
                 string mess = Recv();
-               
+
                 if (Regex.IsMatch(mess, _playerPattern))
                 {
                     Player? player = JsonSerializer.Deserialize<Player>(mess);
@@ -110,8 +129,8 @@ public class NetworkController
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
                             }
-                            else 
-                            { 
+                            else
+                            {
                                 _gameWorld.Player[player.SnakeiD] = player;
                             }
                         }
@@ -145,7 +164,7 @@ public class NetworkController
                         lock (_locker)
                         {
                             _gameWorld.Walls[wall.WallType] = wall;
-                        }   
+                        }
                     }
                 }
             }

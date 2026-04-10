@@ -15,17 +15,17 @@ public partial class SnakeGUI
     ///     Client Name
     /// </summary>
     private string _name = "snake";
-    
+
     /// <summary>
     ///     Port Connection
     /// </summary>
     private int _port = 11000;
-    
+
     /// <summary>
     ///     Server Address
     /// </summary>
     private string _serverAddress = "localhost";
-    
+
     /// <summary>
     ///     Handles all the network connection
     /// </summary>
@@ -34,7 +34,7 @@ public partial class SnakeGUI
     /// <summary>
     ///     Error displayed when user failed to connect to the server
     /// </summary>
-    private bool _isError = false;
+    private bool _isError;
 
     /// <summary>
     ///     Connect to Server
@@ -57,7 +57,6 @@ public partial class SnakeGUI
     /// </summary>
     private void DisconnectFromServer()
     {
-       
         _controller.Disconnect();
     }
 
@@ -101,7 +100,7 @@ public partial class SnakeGUI
     ///     Get the player ID of that client
     /// </summary>
     /// <returns>ID</returns>
-    public int GetPlayerId()
+    private int GetPlayerId()
     {
         return _controller.GetPlayerId();
     }
