@@ -1,5 +1,64 @@
 ﻿@page "/"
 
-<PageTitle>About</PageTitle>
+<PageTitle>About This Project</PageTitle>
 
-<h1>Fill in your about page here</h1>
+<h1>Our Snake Game</h1>
+<strong>Maximillion Jon Chua, Jesse Pan</strong>
+
+<br>
+
+<p>
+    In our project, We were tasked with creating the client side for a multiplayer snake game. Functionally, Our snake game is the same as everybodys elses.
+    Our game cycle is basically like, You spawn in and can eat and die. However, We added some comsmetic features that are different when compared to the provided
+    example given. Our additional cosmetic features are that of a death image that triggers upon death. seperate snake skins that have custom drawn heads and tails.
+    In addition to the ability of having seperate heads and tails for each snake skin. We also take in account of our snakes velicity and the correct orientation of each
+    of the snakes head and tail. Which means if we go down then our head and tail faces down. 
+    All of our assets that we use for the game is either hand drawn or pulled from the internet. 
+</p>
+
+<h4>Addition Functionality</h4>
+<p>
+    Custom Cosmetics
+</p>
+<p>
+    The majority of our cosmetics that are like the backgrounds, walls and powerups have no specific programming implementations. They are generally just swap ins for 
+    the provided snake assets. However, our snake cosmetics and our death animation have implementation that was specifically created for those features.
+</p>
+
+<p>
+    <strong>Different Snakes</strong> Essentially, Our intention for this cosmetic feature is to have different snakes that are assigned to  the different IDs of each 
+    indvidually added snakes. Since there is no limit on the ammount of snakes that we are allowed to have. We assign snake skins with the provided snake IDs modded by 8. 
+    Since we drew 8 unique snakes. Our calculated IDs will result from 0-8. However, Since we draw snake's bodies with lines we also created snake heads and tails that are 
+    related to each color of snake. In order to achieve this we had to create a helper method for both the snake head and the snake tail. Essentially, Its just a switch
+    statement that returns the correct snake asset depending on the snakes skin ID. However,because of he fact that we assign pngs as the head and tail. We alos have to keep
+    in account of the orientation of the snake. In order to achieve this. We first needed a clean way on draw a  rotated image. We made a helper method that saves thes state of 
+    the canvas, then translates and moves the origin to the location of the head.  We then rotate the canvas to the desired angle and then draw the image then we restore the 
+    original state. After figuring out how to draw thing rotated. We use the "dir" field from our playor model and draw based on the velocites. So if its (0,-1) then we rotate
+    is up. If its (0,1) then we rotate down etc. It should be noted that since we are using a canvas coordinate system it does not match with a proper graph
+    
+    
+</p>
+    <p>
+        <strong> death image </strong> this is generally a more simplier feature to implement. Essentially each time we draw a snake or player we check if the snake is alive
+        and in the cases that the snakes are dead. We draw where the snake's heads position a explosion. So basically when any snake dies it leaves an explosion that stays until the 
+        snake respawns or disconnects. 
+        
+    </p>
+
+
+
+<h4>Development Details </h4>
+<p>
+    Geneerally, Our Networking code basically functions in this order. Our controller connects to the server that is inputted into our server address and port. After it successfully
+    connects out controller accepts the JSON messages that the server sends to the the controller. After the controller receives the messages. We deserialize the messages and 
+    parse its information into our made models. We decided what exact model to deserialize to by using Regex and seeing if key words lke "snake" "wall" or "powerups" appear.
+    Once it finds out what type of message it is. We then format that information into our model. Our model is the type of World and our World contains 3 distict dictionarys
+    that contain each snake, wall or power up that is present in the server. Each snake, wall, and power up contains information about their positions in the form of a model called
+    Point2D.  Essentially when we render this information, Our View grabs this information from a copy of the GameWorld. We grab from a copy of the world rather than a gameworld,
+    because of the fact that our GameWorld's data is always being modified since we deserialize servers packets and format it into our models. This is to prevent race conditions
+    and accessing information from our dictionarys whilst they are being updated. We also use a object thats intention is to lock regions of code that mutate out gameworlds dictionarys
+    inorder to prevent any race conditions. Our View generally works by after running our first render that renders the canvas, We run an asyncronous method calle game loop 
+    that runs another asyncronous method called Draw frame, which essentially goes into our copy of the world and loops through each dictionary and renders all of the objects. 
+    For the sake of readibility, We split rendering each object to helpermethods. We have 3 methods called drawPlayers,drawPowerups and drawWalls. All of which handle rendering
+    each object in the given world.
+</p>

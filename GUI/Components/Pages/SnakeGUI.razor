@@ -291,7 +291,7 @@
                     await _context.LineToAsync(point.X, point.Y);
                 }
 
-                await _context.SetFontAsync("16px Arial");
+                await _context.SetFontAsync("16px Monospace");
                 await _context.SetFillStyleAsync("Black"); // choose text color
                 await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
                 await _context.StrokeAsync();
@@ -302,7 +302,7 @@
                 await _context.DrawImageAsync(_explosionGif, head.X -50, head.Y-50,100,100);
                 if (p.SnakeiD == _snakeId)
                 {
-                    await _context.SetFontAsync("50px Arial");
+                    await _context.SetFontAsync("50px Monospace");
                     await _context.SetFillStyleAsync("Red"); 
                     await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
                     await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
@@ -326,12 +326,8 @@
             {
                 continue;
             }
-
-            await _context.SetLineWidthAsync(5);
-            await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
-            await _context.BeginPathAsync();
             await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y - 10, 16, 20);
-            await _context.StrokeAsync();
+       
         }
     }
 
