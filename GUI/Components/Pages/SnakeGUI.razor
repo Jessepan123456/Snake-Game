@@ -181,9 +181,12 @@
         {
             if (player.Body.Count > 0)
             {
-                int snakeHeadIndex = player.Body.Count - 1;
-                Point2D head = player.Body[snakeHeadIndex];
-                await _context.TranslateAsync(-head.X, -head.Y);
+                if (!player.Dc && player.Alive && player.Body.Count > 0)
+                {
+                    int snakeHeadIndex = player.Body.Count - 1;
+                    Point2D head = player.Body[snakeHeadIndex];
+                    await _context.TranslateAsync(-head.X, -head.Y);
+                }
             }
         }
 
@@ -241,76 +244,89 @@
     /// </summary>
     private async Task DrawPlayer()
     {
+      
         foreach (Player p in _copyWorld.Player.Values)
         {
-            if (p.Alive)
+            if (p.Dc)
             {
-                await _context.SetLineWidthAsync(10);
-
-                int coloriD = p.SnakeiD % 8;
-                int headiD = p.SnakeiD % 8;
-                int tailiD = p.SnakeiD % 8;
-                
-                await ColorPicker(coloriD);
-                var headImage = HeadPicker(headiD);
-                var tailImage = TailPicker(tailiD);
-
-                await _context.BeginPathAsync();
-
-
-                if (p.Body.Count == 0)
-                {
-                    continue;
-                }
-                Point2D tail = p.Body[0];
-                Point2D head = p.Body[p.Body.Count - 1];
-                Point2D direction = p.Dir;
-                if (direction.Y == -1) //up
-                {
-                    await DrawRotatedImage(tailImage, tail.X, tail.Y + 5, 20, 10, 0);
-                    await DrawRotatedImage(headImage, head.X, head.Y - 10, 20, 20, 0);
-                }
-                else if (direction.Y == 1) //Down
-                {
-                    await DrawRotatedImage(tailImage, tail.X, tail.Y - 5, 20, 10, (float)Math.PI);
-                    await DrawRotatedImage(headImage, head.X, head.Y + 10, 20, 20, (float)Math.PI);
-                }
-                else if (direction.X == -1) //left
-                {
-                    await DrawRotatedImage(tailImage, tail.X + 5, tail.Y, 20, 10, (float)-Math.PI / 2);
-                    await DrawRotatedImage(headImage, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
-                }
-                else if (direction.X == 1) //right
-                {
-                    await DrawRotatedImage(tailImage, tail.X - 5, tail.Y, 20, 10, (float)Math.PI / 2);
-                    await DrawRotatedImage(headImage, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
-                }
-                else await _context.MoveToAsync(tail.X, tail.Y);
-
-                foreach (Point2D point in p.Body)
-                {
-                    await _context.LineToAsync(point.X, point.Y);
-                }
-
-                await _context.SetFontAsync("16px Arial");
-                await _context.SetFillStyleAsync("Black"); // choose text color
-                await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
-                await _context.StrokeAsync();
+                continue;
             }
-            else
-            {
-                if (p.SnakeiD == _snakeId)
-                {
-                    await _context.SetFontAsync("50px Arial");
-                    await _context.SetFillStyleAsync("Red"); // choose text color
 
+            if (p.Alive)
+            
+
+            {
+                    await _context.SetLineWidthAsync(10);
+
+                    int coloriD = p.SnakeiD % 8;
+                    int headiD = p.SnakeiD % 8;
+                    int tailiD = p.SnakeiD % 8;
+
+                    await ColorPicker(coloriD);
+                    var headImage = HeadPicker(headiD);
+                    var tailImage = TailPicker(tailiD);
+
+                    await _context.BeginPathAsync();
+
+
+                    if (p.Body.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    Point2D tail = p.Body[0];
                     Point2D head = p.Body[p.Body.Count - 1];
-                    await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
-                    await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
+                    Point2D direction = p.Dir;
+                    if (direction.Y == -1) //up
+                    {
+                        await DrawRotatedImage(tailImage, tail.X, tail.Y + 5, 20, 10, 0);
+                        await DrawRotatedImage(headImage, head.X, head.Y - 10, 20, 20, 0);
+                    }
+                    else if (direction.Y == 1) //Down
+                    {
+                        await DrawRotatedImage(tailImage, tail.X, tail.Y - 5, 20, 10, (float)Math.PI);
+                        await DrawRotatedImage(headImage, head.X, head.Y + 10, 20, 20, (float)Math.PI);
+                    }
+                    else if (direction.X == -1) //left
+                    {
+                        await DrawRotatedImage(tailImage, tail.X + 5, tail.Y, 20, 10, (float)-Math.PI / 2);
+                        await DrawRotatedImage(headImage, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
+                    }
+                    else if (direction.X == 1) //right
+                    {
+                        await DrawRotatedImage(tailImage, tail.X - 5, tail.Y, 20, 10, (float)Math.PI / 2);
+                        await DrawRotatedImage(headImage, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
+                    }
+                    else await _context.MoveToAsync(tail.X, tail.Y);
+
+                    foreach (Point2D point in p.Body)
+                    {
+                        await _context.LineToAsync(point.X, point.Y);
+                    }
+
+                    await _context.SetFontAsync("16px Arial");
+                    await _context.SetFillStyleAsync("Black"); // choose text color
+                    await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
                     await _context.StrokeAsync();
                 }
-            }
+                else
+                {
+                    if (p.SnakeiD == _snakeId)
+                    {
+                        await _context.SetFontAsync("50px Arial");
+                        await _context.SetFillStyleAsync("Red"); // choose text color
+
+                        Point2D head = p.Body[p.Body.Count - 1];
+                        await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
+                        await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
+                        await _context.StrokeAsync();
+                    }
+                }
+            
+            
         }
+
+      
     }
 
     /// <summary>
@@ -331,7 +347,7 @@
             await _context.SetStrokeStyleAsync($"rgb( 255, 255, 0 )");
             await _context.BeginPathAsync();
             await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y - 10, 16, 20);
-            await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
+            //await _context.ArcAsync(loc.X, loc.Y, 3, 0, 2 * Math.PI);
             await _context.StrokeAsync();
         }
     }

@@ -19,6 +19,7 @@ public class NetworkController
     private NetworkConnection _connection = new();
 
     private World _gameWorld = new World();
+    private World _cloneWorld = new World();
     private String _playerPattern = "snake";
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
@@ -47,6 +48,7 @@ public class NetworkController
     /// </summary>
     public void Disconnect()
     {
+        _gameWorld = new World();
         _connection.Disconnect();
     }
 
@@ -112,8 +114,8 @@ public class NetworkController
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
                             }
-                            else
-                            {
+                            else 
+                            { 
                                 _gameWorld.Player[player.SnakeiD] = player;
                             }
                         }
@@ -199,7 +201,8 @@ public class NetworkController
     {
         lock (locker)
         {
-            return _gameWorld;
+            _cloneWorld = new World(_gameWorld);
+            return _cloneWorld;
         }
     }
 }

@@ -53,6 +53,7 @@ public partial class SnakeGUI
     /// </summary>
     private void DisconnectFromServer()
     {
+       
         _controller.Disconnect();
     }
 
