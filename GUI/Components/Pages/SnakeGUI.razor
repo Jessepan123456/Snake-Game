@@ -28,6 +28,7 @@
 <img @ref="_snakeHead8" id="head8Image" src="/images/images/SnakeHead8.png" alt="image" style="display:none;"/>
 <img @ref="_snakeTail8" id="Tail8Image" src="/images/images/SnakeTail8.png" alt="image" style="display:none;"/>
 <img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.png" alt="image" style="display:none;"/>
+<img @ref="_explosionGif" id="Explosion" src="/images/images/Explosion.gif" alt="image" style="display:none;"/>
 
 <audio id="deathSound" src="/Audio/DeathAudio.mp3"></audio>
 
@@ -44,11 +45,11 @@
     }
     else if (_isError)
     {
-        <button style="background-color: dodgerblue; color: white;" @onclick="ConnectToServer"> Retry </button> 
-        <br />
+        <button style="background-color: dodgerblue; color: white;" @onclick="ConnectToServer"> Retry</button>
+        <br/>
         <label> @_errorMessage</label>
-     }
-    else 
+    }
+    else
     {
         <button style="background-color: dodgerblue; color: white;" @onclick="ConnectToServer"> Connect</button>
     }
@@ -68,6 +69,8 @@
     ///     Images References
     /// </summary>
     private ElementReference _backgroundImage;
+
+    private ElementReference _explosionGif;
     private ElementReference _powerupImage;
     private ElementReference _snakeHead1;
     private ElementReference _snakeTail1;
@@ -92,21 +95,25 @@
     ///     View Width and Height from client
     /// </summary>
     private const int ViewWidth = 1000;
+
     private const int ViewHeight = 1000;
-    
+
     /// <summary>
     ///     Copy of the World when created
     /// </summary>
     private World _copyWorld = new World();
-    
+
     /// <summary>
     ///     Client Snake ID 
     /// </summary>
     private int _snakeId;
+
+ 
     /// <summary>
     ///trigger to play sound
     /// </summary>
-    private bool _playSound = true;
+    // private bool _playSound = true;
+
     /// <summary>
     ///     Initialized the canvas and starts the game loop when finish
     /// </summary>
@@ -158,7 +165,7 @@
     {
         World newWorld = ReceiveWorld();
         _copyWorld = newWorld;
-        
+
         await _context.BeginBatchAsync();
 
         await _context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
@@ -168,32 +175,30 @@
         await _context.RectAsync(0, 0, ViewWidth, ViewHeight);
         await _context.ClipAsync();
 
-        await _context.TranslateAsync((double) ViewWidth / 2, (double) ViewHeight / 2);
+        await _context.TranslateAsync((double)ViewWidth / 2, (double)ViewHeight / 2);
         await _context.ScaleAsync(1.5, 1.5);
         _snakeId = GetPlayerId();
         if (_copyWorld.Player.TryGetValue(_snakeId, out Player? player))
         {
             if (player.Body.Count > 0)
             {
-               
-                    int snakeHeadIndex = player.Body.Count - 1;
-                    Point2D head = player.Body[snakeHeadIndex];
-                    await _context.TranslateAsync(-head.X, -head.Y);
-                
+                int snakeHeadIndex = player.Body.Count - 1;
+                Point2D head = player.Body[snakeHeadIndex];
+                await _context.TranslateAsync(-head.X, -head.Y);
             }
         }
 
-        await _context.DrawImageAsync(_backgroundImage, (double) -_copyWorld.Size / 2, (double)-_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
+        await _context.DrawImageAsync(_backgroundImage, (double)-_copyWorld.Size / 2, (double)-_copyWorld.Size / 2, _copyWorld.Size, _copyWorld.Size);
         if (IsConnectedToServer())
         {
             await DrawWall();
             await DrawPlayer();
             await DrawPowerUps();
         }
-        
+
         await _context.RestoreAsync();
         await _context.EndBatchAsync();
-        
+
         StateHasChanged();
     }
 
@@ -222,7 +227,7 @@
             {
                 int start = Math.Min(wall.P1.X, wall.P2.X);
                 int end = Math.Max(wall.P1.X, wall.P2.X);
-                
+
                 for (int i = start; i <= end; i += 50)
                 {
                     await _context.DrawImageAsync(_wallImage, i - 25, wall.P1.Y - 25, 50, 50);
@@ -237,7 +242,6 @@
     /// </summary>
     private async Task DrawPlayer()
     {
-      
         foreach (Player p in _copyWorld.Player.Values)
         {
             if (p.Dc)
@@ -247,88 +251,85 @@
 
             if (p.Alive)
             {
-                     _playSound = true;
-                    await _context.SetLineWidthAsync(10);
+                await _context.SetLineWidthAsync(10);
 
-                    int coloriD = p.SnakeiD % 8;
-                    int headiD = p.SnakeiD % 8;
-                    int tailiD = p.SnakeiD % 8;
+                int coloriD = p.SnakeiD % 8;
+                int headiD = p.SnakeiD % 8;
+                int tailiD = p.SnakeiD % 8;
 
-                    await ColorPicker(coloriD);
-                    var headImage = HeadPicker(headiD);
-                    var tailImage = TailPicker(tailiD);
+                await ColorPicker(coloriD);
+                var headImage = HeadPicker(headiD);
+                var tailImage = TailPicker(tailiD);
 
-                    await _context.BeginPathAsync();
+                await _context.BeginPathAsync();
 
 
-                    if (p.Body.Count == 0)
-                    {
-                        continue;
-                    }
+                if (p.Body.Count == 0)
+                {
+                    continue;
+                }
 
-                    Point2D tail = p.Body[0];
-                    Point2D head = p.Body[p.Body.Count - 1];
-                    Point2D direction = p.Dir;
-                    if (direction.Y == -1) //up
-                    {
-                        await DrawRotatedImage(tailImage, tail.X, tail.Y + 5, 20, 10, 0);
-                        await DrawRotatedImage(headImage, head.X, head.Y - 10, 20, 20, 0);
-                    }
-                    else if (direction.Y == 1) //Down
-                    {
-                        await DrawRotatedImage(tailImage, tail.X, tail.Y - 5, 20, 10, (float)Math.PI);
-                        await DrawRotatedImage(headImage, head.X, head.Y + 10, 20, 20, (float)Math.PI);
-                    }
-                    else if (direction.X == -1) //left
-                    {
-                        await DrawRotatedImage(tailImage, tail.X + 5, tail.Y, 20, 10, (float)-Math.PI / 2);
-                        await DrawRotatedImage(headImage, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
-                    }
-                    else if (direction.X == 1) //right
-                    {
-                        await DrawRotatedImage(tailImage, tail.X - 5, tail.Y, 20, 10, (float)Math.PI / 2);
-                        await DrawRotatedImage(headImage, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
-                    }
-                    else await _context.MoveToAsync(tail.X, tail.Y);
+                Point2D tail = p.Body[0];
+                Point2D head = p.Body[p.Body.Count - 1];
+                Point2D direction = p.Dir;
+                if (direction.Y == -1) //up
+                {
+                    await DrawRotatedImage(tailImage, tail.X, tail.Y + 5, 20, 10, 0);
+                    await DrawRotatedImage(headImage, head.X, head.Y - 10, 20, 20, 0);
+                }
+                else if (direction.Y == 1) //Down
+                {
+                    await DrawRotatedImage(tailImage, tail.X, tail.Y - 5, 20, 10, (float)Math.PI);
+                    await DrawRotatedImage(headImage, head.X, head.Y + 10, 20, 20, (float)Math.PI);
+                }
+                else if (direction.X == -1) //left
+                {
+                    await DrawRotatedImage(tailImage, tail.X + 5, tail.Y, 20, 10, (float)-Math.PI / 2);
+                    await DrawRotatedImage(headImage, head.X - 10, head.Y, 20, 20, (float)-Math.PI / 2);
+                }
+                else if (direction.X == 1) //right
+                {
+                    await DrawRotatedImage(tailImage, tail.X - 5, tail.Y, 20, 10, (float)Math.PI / 2);
+                    await DrawRotatedImage(headImage, head.X + 10, head.Y, 20, 20, (float)Math.PI / 2);
+                }
+                else await _context.MoveToAsync(tail.X, tail.Y);
 
-                    foreach (Point2D point in p.Body)
-                    {
-                        await _context.LineToAsync(point.X, point.Y);
-                    }
+                foreach (Point2D point in p.Body)
+                {
+                    await _context.LineToAsync(point.X, point.Y);
+                }
 
-                    await _context.SetFontAsync("16px Arial");
-                    await _context.SetFillStyleAsync("Black"); // choose text color
-                    await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
+                await _context.SetFontAsync("16px Arial");
+                await _context.SetFillStyleAsync("Black"); // choose text color
+                await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
+                await _context.StrokeAsync();
+            }
+            else
+            {
+                Point2D head = p.Body[p.Body.Count - 1];
+                await _context.DrawImageAsync(_explosionGif, head.X -50, head.Y-50,100,100);
+                if (p.SnakeiD == _snakeId)
+                {
+                    // if (_playSound)
+                    // {
+                    //     Console.WriteLine("Hi");
+                    //     await JsRuntime.InvokeVoidAsync(
+                    //         "eval",
+                    //         "let a=document.getElementById('deathSound'); a.currentTime=0; a.play();"
+                    //     );
+                    // }
+                    // _playSound = false;
+                    
+                    await _context.SetFontAsync("50px Arial");
+                    await _context.SetFillStyleAsync("Red"); // choose text color
+                   // await _context.DrawImageAsync(_explosionGif, head.X, head.Y,100,100);
+                    await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
+                    await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
                     await _context.StrokeAsync();
                 }
-                else
-                {
-                    if (p.SnakeiD == _snakeId)
-                    {
-                        if (_playSound)
-                        {
-                            Console.WriteLine("Hi");
-                            await JsRuntime.InvokeVoidAsync(
-                                "eval",
-                                "let a=document.getElementById('deathSound'); a.currentTime=0; a.play();"
-                            );
-                        }
-                        _playSound = false;
-
-                        await _context.SetFontAsync("50px Arial");
-                        await _context.SetFillStyleAsync("Red"); // choose text color
-
-                        Point2D head = p.Body[p.Body.Count - 1];
-                        await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
-                        await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
-                        await _context.StrokeAsync();
-                    }
-                }
-            
-            
+        
+            }
         }
-
-      
     }
 
     /// <summary>
@@ -409,7 +410,7 @@
             case 6: return _snakeHead7;
             case 7: return _snakeHead8;
             default: return _snakeHead1;
-        } 
+        }
     }
 
     /// <summary>
