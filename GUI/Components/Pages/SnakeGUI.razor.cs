@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using GUI.Components.Controllers;
 using GUI.Components.Models;
 using Microsoft.AspNetCore.Components;
+using MySql.Data.MySqlClient;
 
 namespace GUI.Components.Pages;
 
@@ -36,6 +37,7 @@ public partial class SnakeGUI
     /// </summary>
     private bool _isError;
 
+  
     /// <summary>
     ///     Connect to Server
     /// </summary>
@@ -44,6 +46,7 @@ public partial class SnakeGUI
         try
         {
             _controller.Connect(_serverAddress, _port, _name);
+           
             _isError = false;
         }
         catch
@@ -104,4 +107,6 @@ public partial class SnakeGUI
     {
         return _controller.GetPlayerId();
     }
+
+
 }

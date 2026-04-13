@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using GUI.Components.Models;
+using MySql.Data.MySqlClient;
 using Networking;
 
 namespace GUI.Components.Controllers;
@@ -40,6 +41,12 @@ public class NetworkController
     ///     Lock for Locking
     /// </summary>
     private object _locker = new object();
+    
+    private string SQLConnection =
+        "server=art.eng;" +
+        "database=u1548814;" +
+        "uid=u1548814;" +
+        "password=bittermelon1;";
 
     /// <summary>
     ///     Connect to the Server
@@ -53,6 +60,9 @@ public class NetworkController
         _connection.Connect(host, port);
         if (IsConnected())
         {
+            DateTime StartTime = DateTime.Now;
+            AddRow(SQLConnection,"Games","StartTime", StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+            
             _connection.Send(name);
             new Thread(NetworkLoop).Start();
         }
@@ -64,7 +74,14 @@ public class NetworkController
     public void Disconnect()
     {
         _gameWorld = new World();
+        // DateTime EndTime =  DateTime.Now;
+        // UpdateRow(SQLConnection, 
+        //     "Game", 
+        //     "EndTime", 
+        //     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
+        //     "ID", $"{player.SnakeiD}");
         _connection.Disconnect();
+        
     }
 
     /// <summary>
@@ -128,10 +145,32 @@ public class NetworkController
                             if (player.Dc)
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
+                                DateTime EndTime =  DateTime.Now;
+                                UpdateRow(SQLConnection, 
+                                    "Players", 
+                                    "EndTime", 
+                                    EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    "ID", $"{player.SnakeiD}");
                             }
                             else
                             {
+                                if (!_gameWorld.Player.ContainsKey(player.SnakeiD))
+                                {
+                                    AddRow(SQLConnection, "Players", "ID", $"{player.SnakeiD}");
+                                    DateTime StartTime = DateTime.Now;
+                                    UpdateRow(SQLConnection,
+                                        "Players",
+                                        "StartTime",
+                                        StartTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                        "ID",
+                                        $"{player.SnakeiD}");
+                                }
+                                else
+                                {
+                                    
+                                }
                                 _gameWorld.Player[player.SnakeiD] = player;
+                         
                             }
                         }
                     }
@@ -221,4 +260,26 @@ public class NetworkController
             return cloneWorld;
         }
     }
-}
+    private static void AddRow(string connection,string table ,string columns,string values )
+    {
+        using (MySqlConnection conn = new MySqlConnection(connection))
+        {
+            conn.Open();
+            MySqlCommand command = conn.CreateCommand();
+                
+            command.CommandText = "INSERT INTO " + table + " (" + columns + ") VALUES (" + values + ")";
+            command.ExecuteNonQuery();
+        }
+    }
+    
+    private static void UpdateRow(string connection,string table ,string col1,string updatedValue ,string col2 ,string whichValue)
+    {
+        using (MySqlConnection conn = new MySqlConnection(connection))
+        {
+            conn.Open();
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText =  "UPDATE " + table +" SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " + whichValue;
+            command.ExecuteNonQuery();
+          }
+        }
+    }

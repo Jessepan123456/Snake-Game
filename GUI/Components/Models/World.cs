@@ -20,6 +20,8 @@ public class World
     /// </summary>
     public Dictionary<int, Walls> Walls;
     
+    public int GameId { get; set; }
+    
     /// <summary>
     ///     World Size
     /// </summary>
