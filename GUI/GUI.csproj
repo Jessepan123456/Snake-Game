@@ -26,4 +26,8 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\Audio\DeathAudio.mp3" />
+    </ItemGroup>
+
 </Project>

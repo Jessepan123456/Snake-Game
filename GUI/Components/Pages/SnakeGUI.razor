@@ -30,8 +30,6 @@
 <img @ref="_canvasSpaceImg" id="Space" src="/images/images/Space.png" alt="image" style="display:none;"/>
 <img @ref="_explosionGif" id="Explosion" src="/images/images/Explosion.gif" alt="image" style="display:none;"/>
 
-<audio id="deathSound" src="/Audio/DeathAudio.mp3"></audio>
-
 <div id="ConnectionInputs">
     <label> Name: </label>
     <input disabled="@IsDisableInput()" @bind="_name"/>
@@ -119,7 +117,7 @@
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/SnakeGUI.razor.js");
             _context = await _canvasReference.CreateCanvas2DAsync();
             await JsRuntime.InvokeAsync<object>("initRenderJS", DotNetObjectReference.Create(this));
-            
+
             await Task.Delay(500);
             await _context.DrawImageAsync(_canvasSpaceImg, 0, 0, 1000, 1000);
             GameLoop();
@@ -292,23 +290,22 @@
                 }
 
                 await _context.SetFontAsync("16px Monospace");
-                await _context.SetFillStyleAsync("Black"); // choose text color
+                await _context.SetFillStyleAsync("Black");
                 await _context.FillTextAsync($"{p.Name}: {p.Score}", head.X + 10, head.Y - 10);
                 await _context.StrokeAsync();
             }
             else
             {
                 Point2D head = p.Body[p.Body.Count - 1];
-                await _context.DrawImageAsync(_explosionGif, head.X -50, head.Y-50,100,100);
+                await _context.DrawImageAsync(_explosionGif, head.X - 50, head.Y - 50, 100, 100);
                 if (p.SnakeiD == _snakeId)
                 {
                     await _context.SetFontAsync("50px Monospace");
-                    await _context.SetFillStyleAsync("Red"); 
+                    await _context.SetFillStyleAsync("Red");
                     await _context.FillTextAsync($"You Died ", head.X - 100, head.Y);
                     await _context.FillTextAsync($"Score : {p.Score}", head.X - 100, head.Y + 60);
                     await _context.StrokeAsync();
                 }
-        
             }
         }
     }
@@ -326,8 +323,8 @@
             {
                 continue;
             }
+
             await _context.DrawImageAsync(_powerupImage, loc.X - 7, loc.Y - 10, 16, 20);
-       
         }
     }
 
