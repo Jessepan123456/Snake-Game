@@ -41,7 +41,7 @@ public class NetworkController
     ///     Lock for Locking
     /// </summary>
     private object _locker = new object();
-    
+
     private string SQLConnection =
         "server=art.eng;" +
         "database=u1548814;" +
@@ -61,8 +61,8 @@ public class NetworkController
         if (IsConnected())
         {
             DateTime StartTime = DateTime.Now;
-            AddRow(SQLConnection,"Games","StartTime", StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
-            
+            AddRow(SQLConnection, "Games", "StartTime", StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+
             _connection.Send(name);
             new Thread(NetworkLoop).Start();
         }
@@ -81,7 +81,6 @@ public class NetworkController
         //     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
         //     "ID", $"{player.SnakeiD}");
         _connection.Disconnect();
-        
     }
 
     /// <summary>
@@ -145,17 +144,18 @@ public class NetworkController
                             if (player.Dc)
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
-                                DateTime EndTime =  DateTime.Now;
-                                UpdateRow(SQLConnection, 
-                                    "Players", 
-                                    "EndTime", 
+                                DateTime EndTime = DateTime.Now;
+                                UpdateRow(SQLConnection,
+                                    "Players",
+                                    "EndTime",
                                     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
                                     "ID", $"{player.SnakeiD}");
                             }
                             else
                             {
-                                if (!_gameWorld.Player.ContainsKey(player.SnakeiD))
+                                if (!player.HasBeenSeen)
                                 {
+                                    player.HasBeenSeen = true;
                                     AddRow(SQLConnection, "Players", "ID", $"{player.SnakeiD}");
                                     DateTime StartTime = DateTime.Now;
                                     UpdateRow(SQLConnection,
@@ -170,7 +170,6 @@ public class NetworkController
                                     
                                 }
                                 _gameWorld.Player[player.SnakeiD] = player;
-                         
                             }
                         }
                     }
@@ -260,26 +259,29 @@ public class NetworkController
             return cloneWorld;
         }
     }
-    private static void AddRow(string connection,string table ,string columns,string values )
+
+    private static void AddRow(string connection, string table, string columns, string values)
     {
         using (MySqlConnection conn = new MySqlConnection(connection))
         {
             conn.Open();
             MySqlCommand command = conn.CreateCommand();
-                
+
             command.CommandText = "INSERT INTO " + table + " (" + columns + ") VALUES (" + values + ")";
             command.ExecuteNonQuery();
         }
     }
-    
-    private static void UpdateRow(string connection,string table ,string col1,string updatedValue ,string col2 ,string whichValue)
+
+    private static void UpdateRow(string connection, string table, string col1, string updatedValue, string col2,
+        string whichValue)
     {
         using (MySqlConnection conn = new MySqlConnection(connection))
         {
             conn.Open();
             MySqlCommand command = conn.CreateCommand();
-            command.CommandText =  "UPDATE " + table +" SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " + whichValue;
+            command.CommandText = "UPDATE " + table + " SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " +
+                                  whichValue;
             command.ExecuteNonQuery();
-          }
         }
     }
+}
