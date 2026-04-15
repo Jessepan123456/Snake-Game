@@ -42,8 +42,8 @@ public class NetworkController
     /// </summary>
     private object _locker = new object();
     
-    private string SQLConnection =
-        "server=art.eng;" +
+    private const string SqlConnection =
+        "server=atr.eng.utah.edu;" +
         "database=u1548814;" +
         "uid=u1548814;" +
         "password=bittermelon1;";
@@ -60,11 +60,13 @@ public class NetworkController
         _connection.Connect(host, port);
         if (IsConnected())
         {
-            DateTime StartTime = DateTime.Now;
-            AddRow(SQLConnection,"Games","StartTime", StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
             
-            _connection.Send(name);
             new Thread(NetworkLoop).Start();
+            _connection.Send(name);
+
+            DateTime StartTime = DateTime.Now;
+            AddGameRow(SqlConnection,"Games","StartTime","EndTime",  $"'{StartTime.ToString("yyyy-MM-dd HH:mm:ss")}'","NULL");
+           Console.WriteLine( "INSERT INTO " + "table" + " (" + "columns" + ") VALUES ('" + "value" + "')");
         }
     }
 
@@ -75,7 +77,7 @@ public class NetworkController
     {
         _gameWorld = new World();
         // DateTime EndTime =  DateTime.Now;
-        // UpdateRow(SQLConnection, 
+        // UpdateRow(SqlConnection, 
         //     "Game", 
         //     "EndTime", 
         //     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -146,7 +148,7 @@ public class NetworkController
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
                                 DateTime EndTime =  DateTime.Now;
-                                UpdateRow(SQLConnection, 
+                                UpdateRow(SqlConnection, 
                                     "Players", 
                                     "EndTime", 
                                     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -156,9 +158,9 @@ public class NetworkController
                             {
                                 if (!_gameWorld.Player.ContainsKey(player.SnakeiD))
                                 {
-                                    AddRow(SQLConnection, "Players", "ID", $"{player.SnakeiD}");
+                                   // AddRow(SqlConnection, "Players", "ID", $"{player.SnakeiD}");
                                     DateTime StartTime = DateTime.Now;
-                                    UpdateRow(SQLConnection,
+                                    UpdateRow(SqlConnection,
                                         "Players",
                                         "StartTime",
                                         StartTime.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -260,17 +262,29 @@ public class NetworkController
             return cloneWorld;
         }
     }
-    private static void AddRow(string connection,string table ,string columns,string values )
+    private static int AddGameRow(string connection,string table ,string startTime,string endTime , string v1, string v2 )
     {
+        int gameID;
         using (MySqlConnection conn = new MySqlConnection(connection))
         {
             conn.Open();
             MySqlCommand command = conn.CreateCommand();
-                
-            command.CommandText = "INSERT INTO " + table + " (" + columns + ") VALUES (" + values + ")";
-            command.ExecuteNonQuery();
+            command.CommandText = $"INSERT INTO {table} ({startTime},{endTime}) VALUES ({v1}, {v2});";
+            try
+            {
+                command.ExecuteNonQuery();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message); 
+            }
+            command.CommandText = "SELECT last_insert_id();";
+            gameID = Convert.ToInt32(command.ExecuteScalar());
         }
+
+        return gameID;
     }
+    
     
     private static void UpdateRow(string connection,string table ,string col1,string updatedValue ,string col2 ,string whichValue)
     {
@@ -279,7 +293,14 @@ public class NetworkController
             conn.Open();
             MySqlCommand command = conn.CreateCommand();
             command.CommandText =  "UPDATE " + table +" SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " + whichValue;
-            command.ExecuteNonQuery();
-          }
+            try
+            {
+                command.ExecuteNonQuery();
+            }
+            catch(Exception e)
+            {
+               Console.WriteLine(e.Message); 
+            }
+        }
         }
     }
