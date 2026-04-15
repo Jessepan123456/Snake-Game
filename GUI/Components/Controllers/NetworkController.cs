@@ -66,7 +66,7 @@ public class NetworkController
 
             DateTime StartTime = DateTime.Now;
             AddGameRow(SqlConnection,"Games","StartTime","EndTime",  $"'{StartTime.ToString("yyyy-MM-dd HH:mm:ss")}'","NULL");
-           Console.WriteLine( "INSERT INTO " + "table" + " (" + "columns" + ") VALUES ('" + "value" + "')");
+           Console.WriteLine( "IjNSERT INTO " + "table" + " (" + "columns" + ") VALUES ('" + "value" + "')");
         }
     }
 
