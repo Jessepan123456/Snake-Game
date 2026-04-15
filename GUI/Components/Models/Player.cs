@@ -60,12 +60,6 @@ public class Player
     /// </summary>
     [JsonPropertyName(("join"))]
     public bool Join { get; set; }
-
-    [JsonIgnore] 
-    public DateTime StartTime { get; set; }
-    
-    [JsonIgnore] 
-    public DateTime EndTime { get; set; }
     
     [JsonIgnore] 
     public int MaxScore { get; set; }

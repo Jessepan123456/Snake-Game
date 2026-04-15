@@ -41,13 +41,10 @@ public class NetworkController
     ///     Lock for Locking
     /// </summary>
     private object _locker = new object();
-    
-    private const string SqlConnection =
-        "server=atr.eng.utah.edu;" +
-        "database=u1548814;" +
-        "uid=u1548814;" +
-        "password=bittermelon1;";
 
+    public const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
+
+    private int gameId;
     /// <summary>
     ///     Connect to the Server
     ///     Starts a background thread that continuously listens to the server
@@ -60,14 +57,21 @@ public class NetworkController
         _connection.Connect(host, port);
         if (IsConnected())
         {
-            
             new Thread(NetworkLoop).Start();
             _connection.Send(name);
-
-            DateTime StartTime = DateTime.Now;
-            AddGameRow(SqlConnection,"Games","StartTime","EndTime",  $"'{StartTime.ToString("yyyy-MM-dd HH:mm:ss")}'","NULL");
-           Console.WriteLine( "IjNSERT INTO " + "table" + " (" + "columns" + ") VALUES ('" + "value" + "')");
+            String startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+            using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+            {
+                conn.Open();
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + startTime + "\");";
+                command.ExecuteNonQuery();
+                command.CommandText = "select last_insert_id();";
+                gameId = Convert.ToInt32(command.ExecuteScalar());
+                Console.WriteLine(gameId);
+            }
         }
+        
     }
 
     /// <summary>
@@ -83,7 +87,6 @@ public class NetworkController
         //     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
         //     "ID", $"{player.SnakeiD}");
         _connection.Disconnect();
-        
     }
 
     /// <summary>
@@ -147,32 +150,30 @@ public class NetworkController
                             if (player.Dc)
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
-                                DateTime EndTime =  DateTime.Now;
-                                UpdateRow(SqlConnection, 
-                                    "Players", 
-                                    "EndTime", 
-                                    EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                    "ID", $"{player.SnakeiD}");
+                                DateTime EndTime = DateTime.Now;
                             }
                             else
                             {
-                                if (!_gameWorld.Player.ContainsKey(player.SnakeiD))
+                                if (!player.HasBeenSeen)
                                 {
-                                   // AddRow(SqlConnection, "Players", "ID", $"{player.SnakeiD}");
-                                    DateTime StartTime = DateTime.Now;
-                                    UpdateRow(SqlConnection,
-                                        "Players",
-                                        "StartTime",
-                                        StartTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                                        "ID",
-                                        $"{player.SnakeiD}");
+                                    player.HasBeenSeen = true;
+                                    String EnterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                                    using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                    {
+                                        conn.Open();
+                                        MySqlCommand command = conn.CreateCommand();
+                                        command.CommandText =
+                                            "INSERT INTO Players (ID, Name, MaxScore, EnterTime, GameID) VALUES (\""
+                                            + player.SnakeiD + "\", \""
+                                            + player.Name + "\", \""
+                                            + player.MaxScore + "\", \""
+                                            + EnterTime + "\", \""
+                                            + gameId + "\");";
+                                        command.ExecuteNonQuery();
+                                    }
                                 }
-                                else
-                                {
-                                    
-                                }
+
                                 _gameWorld.Player[player.SnakeiD] = player;
-                         
                             }
                         }
                     }
@@ -262,45 +263,35 @@ public class NetworkController
             return cloneWorld;
         }
     }
-    private static int AddGameRow(string connection,string table ,string startTime,string endTime , string v1, string v2 )
-    {
-        int gameID;
-        using (MySqlConnection conn = new MySqlConnection(connection))
-        {
-            conn.Open();
-            MySqlCommand command = conn.CreateCommand();
-            command.CommandText = $"INSERT INTO {table} ({startTime},{endTime}) VALUES ({v1}, {v2});";
-            try
-            {
-                command.ExecuteNonQuery();
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message); 
-            }
-            command.CommandText = "SELECT last_insert_id();";
-            gameID = Convert.ToInt32(command.ExecuteScalar());
-        }
-
-        return gameID;
-    }
-    
-    
-    private static void UpdateRow(string connection,string table ,string col1,string updatedValue ,string col2 ,string whichValue)
-    {
-        using (MySqlConnection conn = new MySqlConnection(connection))
-        {
-            conn.Open();
-            MySqlCommand command = conn.CreateCommand();
-            command.CommandText =  "UPDATE " + table +" SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " + whichValue;
-            try
-            {
-                command.ExecuteNonQuery();
-            }
-            catch(Exception e)
-            {
-               Console.WriteLine(e.Message); 
-            }
-        }
-        }
-    }
+    // private static void AddGameRow(string connection,string table ,string startTime,string endTime , string v1, string v2 )
+    // {
+    //     using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+    //     {
+    //         conn.Open();
+    //         MySqlCommand command = conn.CreateCommand();
+    //         command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + StartTime + "\");";;
+    //         Console.WriteLine(command.CommandText);
+    //         // command.CommandText = $"INSERT INTO Games () VALUES ('{name}');";
+    //         command.ExecuteNonQuery();
+    //     }
+    // }
+    //
+    //
+    // private static void UpdateRow(string connection,string table ,string col1,string updatedValue ,string col2 ,string whichValue)
+    // {
+    //     using (MySqlConnection conn = new MySqlConnection(connection))
+    //     {
+    //         conn.Open();
+    //         MySqlCommand command = conn.CreateCommand();
+    //         command.CommandText =  "UPDATE " + table +" SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " + whichValue;
+    //         try
+    //         {
+    //             command.ExecuteNonQuery();
+    //         }
+    //         catch(Exception e)
+    //         {
+    //            Console.WriteLine(e.Message); 
+    //         }
+    //     }
+    //     }
+}
