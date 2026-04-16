@@ -50,9 +50,8 @@ public class NetworkController
 
     public const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
 
-    private int gameId;
-    
-    
+    private int gameId = 0;
+
     /// <summary>
     ///     Connect to the Server
     ///     Starts a background thread that continuously listens to the server
@@ -65,8 +64,6 @@ public class NetworkController
         _connection.Connect(host, port);
         if (IsConnected())
         {
-            new Thread(NetworkLoop).Start();
-            _connection.Send(name);
             String startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
             using (MySqlConnection conn = new MySqlConnection(SqlConnection))
             {
@@ -74,9 +71,12 @@ public class NetworkController
                 MySqlCommand command = conn.CreateCommand();
                 command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + startTime + "\");";
                 command.ExecuteNonQuery();
-                command.CommandText = "select last_insert_id();";
+                command.CommandText = "select LAST_INSERT_ID();";
                 gameId = Convert.ToInt32(command.ExecuteScalar());
             }
+
+            new Thread(NetworkLoop).Start();
+            _connection.Send(name);
         }
     }
 
@@ -163,7 +163,7 @@ public class NetworkController
                             else
                             {
                                 _gameWorld.Player[player.SnakeiD] = player;
-                             //does not render and also adds the player two times to the sql table.
+                                //does not render and also adds the player two times to the sql table.
                                 if (!(_playerSeen.ContainsKey(player.SnakeiD)))
                                 {
                                     _playerSeen.Add(player.SnakeiD, 0);
@@ -190,7 +190,13 @@ public class NetworkController
                                         currScore = player.Score;
                                     }
                                     _playerSeen[player.SnakeiD] = currScore;
-                                    //send sql cmd to update 
+                                    // using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                    // {
+                                    //     conn.Open();
+                                    //     MySqlCommand command = conn.CreateCommand();
+                                    //     command.CommandText = $"UPDATE Players set MaxScore = '{currScore}' where GameID = {gameId} AND ID = '{player.SnakeiD}';";
+                                    //     command.ExecuteNonQuery();
+                                    // }
                                 }
                             }
                         }
@@ -281,35 +287,4 @@ public class NetworkController
             return cloneWorld;
         }
     }
-    // private static void AddGameRow(string connection,string table ,string startTime,string endTime , string v1, string v2 )
-    // {
-    //     using (MySqlConnection conn = new MySqlConnection(SqlConnection))
-    //     {
-    //         conn.Open();
-    //         MySqlCommand command = conn.CreateCommand();
-    //         command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + StartTime + "\");";;
-    //         Console.WriteLine(command.CommandText);
-    //         // command.CommandText = $"INSERT INTO Games () VALUES ('{name}');";
-    //         command.ExecuteNonQuery();
-    //     }
-    // }
-    //
-    //
-    // private static void UpdateRow(string connection,string table ,string col1,string updatedValue ,string col2 ,string whichValue)
-    // {
-    //     using (MySqlConnection conn = new MySqlConnection(connection))
-    //     {
-    //         conn.Open();
-    //         MySqlCommand command = conn.CreateCommand();
-    //         command.CommandText =  "UPDATE " + table +" SET " + col1 + " = " + updatedValue + " WHERE " + col2 + " = " + whichValue;
-    //         try
-    //         {
-    //             command.ExecuteNonQuery();
-    //         }
-    //         catch(Exception e)
-    //         {
-    //            Console.WriteLine(e.Message); 
-    //         }
-    //     }
-    //     }
 }
