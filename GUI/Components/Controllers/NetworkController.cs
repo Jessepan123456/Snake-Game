@@ -33,6 +33,12 @@ public class NetworkController
     private String _powerUpPattern = "power";
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    private Dictionary<int, int> _playerSeen = new Dictionary<int, int>();
+
+    /// <summary>
     ///     Player ID
     /// </summary>
     private int _playerId;
@@ -45,6 +51,8 @@ public class NetworkController
     public const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
 
     private int gameId;
+    
+    
     /// <summary>
     ///     Connect to the Server
     ///     Starts a background thread that continuously listens to the server
@@ -68,10 +76,8 @@ public class NetworkController
                 command.ExecuteNonQuery();
                 command.CommandText = "select last_insert_id();";
                 gameId = Convert.ToInt32(command.ExecuteScalar());
-                Console.WriteLine(gameId);
             }
         }
-        
     }
 
     /// <summary>
@@ -80,13 +86,15 @@ public class NetworkController
     public void Disconnect()
     {
         _gameWorld = new World();
-        // DateTime EndTime =  DateTime.Now;
-        // UpdateRow(SqlConnection, 
-        //     "Game", 
-        //     "EndTime", 
-        //     EndTime.ToString("yyyy-MM-dd HH:mm:ss"),
-        //     "ID", $"{player.SnakeiD}");
         _connection.Disconnect();
+        String endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+        using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+        {
+            conn.Open();
+            MySqlCommand command = conn.CreateCommand();
+            command.CommandText = $"UPDATE Games set EndTime = '{endTime}' where ID = {gameId};";
+            command.ExecuteNonQuery();
+        }
     }
 
     /// <summary>
@@ -154,9 +162,11 @@ public class NetworkController
                             }
                             else
                             {
-                                if (!player.HasBeenSeen)
+                                _gameWorld.Player[player.SnakeiD] = player;
+                             //does not render and also adds the player two times to the sql table.
+                                if (!(_playerSeen.ContainsKey(player.SnakeiD)))
                                 {
-                                    player.HasBeenSeen = true;
+                                    _playerSeen.Add(player.SnakeiD, 0);
                                     String EnterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
                                     using (MySqlConnection conn = new MySqlConnection(SqlConnection))
                                     {
@@ -172,8 +182,16 @@ public class NetworkController
                                         command.ExecuteNonQuery();
                                     }
                                 }
-
-                                _gameWorld.Player[player.SnakeiD] = player;
+                                else
+                                {
+                                    int currScore = 0;
+                                    if (player.Score > _playerSeen[player.SnakeiD])
+                                    {
+                                        currScore = player.Score;
+                                    }
+                                    _playerSeen[player.SnakeiD] = currScore;
+                                    //send sql cmd to update 
+                                }
                             }
                         }
                     }
