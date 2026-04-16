@@ -158,7 +158,14 @@ public class NetworkController
                             if (player.Dc)
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
-                                DateTime EndTime = DateTime.Now;
+                                String EndTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                                using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                {
+                                    conn.Open();
+                                    MySqlCommand command = conn.CreateCommand();
+                                    command.CommandText = $"UPDATE Players set EndTime = '{EndTime}' where ID = {player.SnakeiD} and  GameID = {gameId};";
+                                    command.ExecuteNonQuery();
+                                }
                             }
                             else
                             {
