@@ -31,13 +31,7 @@ public class NetworkController
 
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    private Dictionary<int, int> _playerSeen = new Dictionary<int, int>();
-
+    
     /// <summary>
     ///     Player ID
     /// </summary>
@@ -49,8 +43,12 @@ public class NetworkController
     private object _locker = new object();
 
     public const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
+    
+    private Dictionary<int, int> _playerSeen = new Dictionary<int, int>();
 
-    private int gameId = 0;
+    private Dictionary<int, Player> _player = new Dictionary<int, Player>();
+
+    // private int gameId = 0;
 
     /// <summary>
     ///     Connect to the Server
@@ -64,16 +62,16 @@ public class NetworkController
         _connection.Connect(host, port);
         if (IsConnected())
         {
-            String startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-            using (MySqlConnection conn = new MySqlConnection(SqlConnection))
-            {
-                conn.Open();
-                MySqlCommand command = conn.CreateCommand();
-                command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + startTime + "\");";
-                command.ExecuteNonQuery();
-                command.CommandText = "select LAST_INSERT_ID();";
-                gameId = Convert.ToInt32(command.ExecuteScalar());
-            }
+            // String startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+            // using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+            // {
+            //     conn.Open();
+            //     MySqlCommand command = conn.CreateCommand();
+            //     command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + startTime + "\");";
+            //     command.ExecuteNonQuery();
+            //     command.CommandText = "select LAST_INSERT_ID();";
+            //     gameId = Convert.ToInt32(command.ExecuteScalar());
+            // }
 
             new Thread(NetworkLoop).Start();
             _connection.Send(name);
@@ -85,16 +83,20 @@ public class NetworkController
     /// </summary>
     public void Disconnect()
     {
-        _gameWorld = new World();
-        _connection.Disconnect();
-        String endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-        using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+        lock (_locker)
         {
-            conn.Open();
-            MySqlCommand command = conn.CreateCommand();
-            command.CommandText = $"UPDATE Games set EndTime = '{endTime}' where ID = {gameId};";
-            command.ExecuteNonQuery();
+            _gameWorld = new World();
         }
+        _connection.Disconnect();
+        
+        // String endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+        // using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+        // {
+        //     conn.Open();
+        //     MySqlCommand command = conn.CreateCommand();
+        //     command.CommandText = $"UPDATE Games set EndTime = '{endTime}' where ID = {gameId};";
+        //     command.ExecuteNonQuery();
+        // }
     }
 
     /// <summary>
@@ -157,53 +159,71 @@ public class NetworkController
                         {
                             if (player.Dc)
                             {
-                                _gameWorld.Player.Remove(player.SnakeiD);
-                                String EndTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-                                using (MySqlConnection conn = new MySqlConnection(SqlConnection))
-                                {
-                                    conn.Open();
-                                    MySqlCommand command = conn.CreateCommand();
-                                    command.CommandText = $"UPDATE Players set EndTime = '{EndTime}' where ID = {player.SnakeiD} and  GameID = {gameId};";
-                                    command.ExecuteNonQuery();
-                                }
+                                // _gameWorld.Player.Remove(player.SnakeiD);
+                                // String EndTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                                // using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                // {
+                                //     conn.Open();
+                                //     MySqlCommand command = conn.CreateCommand();
+                                //     command.CommandText = $"UPDATE Players set EndTime = '{EndTime}' where ID = {player.SnakeiD} and  GameID = {gameId};";
+                                //     command.ExecuteNonQuery();
+                                // }
                             }
                             else
                             {
                                 _gameWorld.Player[player.SnakeiD] = player;
-                                //does not render and also adds the player two times to the sql table.
-                                if (!(_playerSeen.ContainsKey(player.SnakeiD)))
+                                if (!_player.ContainsKey(player.SnakeiD))
                                 {
-                                    _playerSeen.Add(player.SnakeiD, 0);
-                                    String EnterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-                                    using (MySqlConnection conn = new MySqlConnection(SqlConnection))
-                                    {
-                                        conn.Open();
-                                        MySqlCommand command = conn.CreateCommand();
-                                        command.CommandText =
-                                            "INSERT INTO Players (ID, Name, MaxScore, EnterTime, GameID) VALUES (\""
-                                            + player.SnakeiD + "\", \""
-                                            + player.Name + "\", \""
-                                            + player.MaxScore + "\", \""
-                                            + EnterTime + "\", \""
-                                            + gameId + "\");";
-                                        command.ExecuteNonQuery();
-                                    }
+                                    _player[player.SnakeiD] = player;
+                                    Console.Write("First time seen");
                                 }
                                 else
                                 {
-                                    int currScore = 0;
-                                    if (player.Score > _playerSeen[player.SnakeiD])
+                                    Player lastSeen = _player[player.SnakeiD];
+                                    if (player.Score > lastSeen.MaxScore)
                                     {
-                                        currScore = player.Score;
+                                        lastSeen.MaxScore = player.Score;
+                                        _player[player.SnakeiD] = lastSeen;
+                                        Console.Write("New High Score" + _player[player.SnakeiD].MaxScore);
                                     }
-                                    _playerSeen[player.SnakeiD] = currScore;
+                                }
+                                
+                                if (!(_playerSeen.ContainsKey(player.SnakeiD)))
+                                {
+                                    Console.Write("First time seen");
+                                    _playerSeen.Add(player.SnakeiD, 0);
+                                    // String EnterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
                                     // using (MySqlConnection conn = new MySqlConnection(SqlConnection))
                                     // {
                                     //     conn.Open();
                                     //     MySqlCommand command = conn.CreateCommand();
-                                    //     command.CommandText = $"UPDATE Players set MaxScore = '{currScore}' where GameID = {gameId} AND ID = '{player.SnakeiD}';";
+                                    //     command.CommandText =
+                                    //         "INSERT INTO Players (ID, Name, MaxScore, EnterTime, GameID) VALUES (\""
+                                    //         + player.SnakeiD + "\", \""
+                                    //         + player.Name + "\", \""
+                                    //         + player.MaxScore + "\", \""
+                                    //         + EnterTime + "\", \""
+                                    //         + gameId + "\");";
                                     //     command.ExecuteNonQuery();
                                     // }
+                                }
+                                else
+                                {
+                                     if (player.Score > _playerSeen[player.SnakeiD])
+                                     {
+                                         int currScore = 0;
+                                         currScore = player.Score;
+                                         _playerSeen[player.SnakeiD] = currScore;
+                                         Console.Write("High Score" + _playerSeen[player.SnakeiD]);
+                                     }
+                                     
+                                     // using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                     // {
+                                     //     conn.Open();
+                                     //     MySqlCommand command = conn.CreateCommand();
+                                     //     command.CommandText = $"UPDATE Players set MaxScore = '{currScore}' where GameID = {gameId} AND ID = '{player.SnakeiD}';";
+                                     //     command.ExecuteNonQuery();
+                                     // }
                                 }
                             }
                         }
