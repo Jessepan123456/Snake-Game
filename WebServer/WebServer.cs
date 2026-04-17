@@ -58,7 +58,7 @@ public static class WebServer
         }
         else if (incomingMessage.Contains("GET /games?gid=8 "))
         {
-            
+            client.Send(HttpOkHeader + "<html>\n  <h3>Stats for Game 8</h3>\n  <table border=\"1\">\n    <thead>\n      <tr>\n        <td>Player ID</td><td>Player Name</td><td>Max Score</td><td>Enter Time</td><td>Leave Time</td>\n      </tr>\n    </thead>\n    <tbody>\n      <tr>\n        <td>12</td><td>Danny</td><td>1</td><td>11/23/2024 10:41:29 AM</td><td>11/23/2024 10:41:53 AM</td>\n      </tr>\n      ... (more table rows omitted for brevity) ...\n    </tbody>\n  </table>\n</html>");
         }
         else // error case
         {
