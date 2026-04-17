@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI.csproj", "{B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WebServer\WebServer.csproj", "{41231063-D7A2-4D14-970D-E3F75295A5EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatServer", "ps8_handout\ChatServer\ChatServer.csproj", "{683C72AA-17F9-49FB-9CC3-37CF807A9AD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Networking", "ps8_handout\Networking\Networking.csproj", "{ECED6DD9-7091-441C-A329-CD1903F2D1CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{41231063-D7A2-4D14-970D-E3F75295A5EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41231063-D7A2-4D14-970D-E3F75295A5EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41231063-D7A2-4D14-970D-E3F75295A5EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{683C72AA-17F9-49FB-9CC3-37CF807A9AD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{683C72AA-17F9-49FB-9CC3-37CF807A9AD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{683C72AA-17F9-49FB-9CC3-37CF807A9AD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{683C72AA-17F9-49FB-9CC3-37CF807A9AD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECED6DD9-7091-441C-A329-CD1903F2D1CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECED6DD9-7091-441C-A329-CD1903F2D1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECED6DD9-7091-441C-A329-CD1903F2D1CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECED6DD9-7091-441C-A329-CD1903F2D1CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

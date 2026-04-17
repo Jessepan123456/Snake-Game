@@ -30,4 +30,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\Audio\DeathAudio.mp3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ps8_handout\Networking\Networking.csproj" />
+    </ItemGroup>
+
 </Project>
