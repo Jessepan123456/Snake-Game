@@ -17,7 +17,7 @@ public static class WebServer
         // Use my PS8 code.
         // StartServer takes a Delegate. Starts listening at port 80
         // Whenever someone connects to port 80, run delegate with that client
-        Server.StartServer(HandleHttpConnection, 8000);
+        Server.StartServer(HandleHttpConnection, 80);
         Console.Read(); // prevent main from returning
     }
     
@@ -34,7 +34,8 @@ public static class WebServer
         if (incomingMessage.Contains("GET / "))
         {
             // Serve the home page HTML
-            client.Send(HttpOkHeader + "<h2>This is the home page!</h2>");
+            client.Send(HttpOkHeader + "<html>\n  <h3>Welcome to the Snake Games Database!</h3>\n  <a href=\"/games\">View Games</a>\n</html>");
+            
             // This is a great start, but we need to programatically construct the HTML.
             // You can do this by writing whatever c# code you want. For example, the database
             // This code needs to query the database, find out who all is playing / what games exist, etc
@@ -46,13 +47,18 @@ public static class WebServer
              * 
              */
         }
-        else if (incomingMessage.Contains("GET /cats "))
+        else if (incomingMessage.Contains("GET /games "))
         {
-            client.Send(HttpOkHeader + "<h1>CATS CATS CATS</h1>");
-            for (int i = 0; i < 1000; i++)
-            {
-                client.Send("<h1>CATS CATS CATS</h1>");
-            }
+            client.Send(HttpOkHeader + "<html>\n  <table border=\"1\">\n    <thead>\n      <tr>\n        <td>ID</td><td>Start</td><td>End</td>\n      </tr>\n    </thead>\n    <tbody>\n      <tr>\n        <td><a href=\"/games?gid=8\">8</a></td>\n        <td>11/23/2024 10:38:52 AM</td>\n        <td>11/23/2024 10:39:52 AM</td>\n      </tr>\n      ... (more table rows omitted for brevity) ...\n    </tbody>\n  </table>\n</html>");
+            // client.Send(HttpOkHeader + "<h1>CATS CATS CATS</h1>");
+            // for (int i = 0; i < 1000; i++)
+            // {
+            //     client.Send("<h1>CATS CATS CATS</h1>");
+            // }
+        }
+        else if (incomingMessage.Contains("GET /games?gid=8 "))
+        {
+            
         }
         else // error case
         {

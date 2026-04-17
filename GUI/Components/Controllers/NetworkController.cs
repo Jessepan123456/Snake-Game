@@ -28,7 +28,6 @@ public class NetworkController
     ///     Regex pattern for JSON Deserializing for Walls, Players, PowerUps
     /// </summary>
     private String _playerPattern = "snake";
-
     private String _wallPattern = "wall";
     private String _powerUpPattern = "power";
 
@@ -42,10 +41,19 @@ public class NetworkController
     /// </summary>
     private object _locker = new object();
 
+    /// <summary>
+    ///     SQL Connection login
+    /// </summary>
     public const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
 
+    /// <summary>
+    ///     Use to if the clients who entered before 
+    /// </summary>
     private Dictionary<int, Player> _playerSeen = new Dictionary<int, Player>();
 
+    /// <summary>
+    ///     Keep Track of the GameID
+    /// </summary>
     private int gameId = 0;
 
     /// <summary>
