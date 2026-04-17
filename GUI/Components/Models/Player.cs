@@ -11,55 +11,61 @@ public class Player
     ///     Snake ID
     /// </summary>
     [JsonPropertyName(("snake"))]
-    public int  SnakeiD { get; set; }
-    
+    public int SnakeiD { get; set; }
+
     /// <summary>
     ///     Client Name
     /// </summary>
     [JsonPropertyName(("name"))]
     public string Name { get; set; }
-    
+
     /// <summary>
     ///     Snake Body Location
     /// </summary>
     [JsonPropertyName(("body"))]
     public List<Point2D> Body { get; set; }
-    
+
     /// <summary>
     ///     Snake Direction
     /// </summary>
     [JsonPropertyName(("dir"))]
     public Point2D Dir { get; set; }
-    
+
     /// <summary>
     ///     Score
     /// </summary>
     [JsonPropertyName(("score"))]
     public int Score { get; set; }
-    
+
     /// <summary>
     ///     Snake Dead
     /// </summary>
     [JsonPropertyName(("dead"))]
     public bool Dead { get; set; }
-    
+
     /// <summary>
     ///     Snake Alive
     /// </summary>
     [JsonPropertyName(("alive"))]
     public bool Alive { get; set; }
-    
+
     /// <summary>
     ///     Client Disconnected
     /// </summary>
     [JsonPropertyName(("dc"))]
     public bool Dc { get; set; }
-    
+
     /// <summary>
     ///     Client connected/joined
     /// </summary>
     [JsonPropertyName(("join"))]
-    public bool Join {get; set;}
+    public bool Join { get; set; }
+    
+    [JsonIgnore] 
+    public int MaxScore { get; set; }
+    
+    [JsonIgnore]
+    public bool HasBeenSeen { get; set; }
 
     /// <summary>
     ///     Default Constructor for Player
