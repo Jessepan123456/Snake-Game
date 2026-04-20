@@ -26,7 +26,6 @@ public static class WebServer
     static void Main()
     {
         Console.WriteLine("Starting web server...");
-        AllGames();
         Server.StartServer(HandleHttpConnection, 80);
         Console.Read();
     }
@@ -45,6 +44,7 @@ public static class WebServer
         }
         else if (incomingMessage.Contains("GET /games "))
         {
+            AllGames();
             StringBuilder table = new StringBuilder();
             foreach (int id in _gamesList.Keys)
             {
@@ -59,17 +59,20 @@ public static class WebServer
         else if (incomingMessage.Contains($"GET /games?gid="))
         {
             _playerList.Clear();
-            char gameId = incomingMessage[15];
+            string url = incomingMessage.Split(' ')[1];
+            string gameId = url.Split("gid=")[1];
             int id = int.Parse(gameId.ToString());
+            Console.WriteLine(id);
             AllPlayer(id);
+
             StringBuilder table = new StringBuilder();
             table.Append(
                 $"<html>\n  <h3>Stats for Game {id}</h3>\n  <table border=\"1\">\n    <thead>\n      <tr>\n        <td>Player ID</td><td>Player Name</td><td>Max Score</td><td>Enter Time</td><td>Leave Time</td>\n      </tr>\n    </thead>\n    <tbody>");
 
-            foreach (int PlayerID in _playerList.Keys)
+            foreach (int playerId in _playerList.Keys)
             {
                 table.Append(
-                    $"<tr>\n        <td>{PlayerID}</td><td>{_playerList[PlayerID].PlayerName}</td><td>{_playerList[PlayerID].MaxScore}</td><td>{_playerList[PlayerID].EnterTime}</td><td>{_playerList[PlayerID].EndTime}</td>\n      </tr>");
+                    $"<tr>\n        <td>{playerId}</td><td>{_playerList[playerId].PlayerName}</td><td>{_playerList[playerId].MaxScore}</td><td>{_playerList[playerId].EnterTime}</td><td>{_playerList[playerId].EndTime}</td>\n      </tr>");
             }
 
             table.Append(" </tbody>\n  </table>\n</html>");
