@@ -9,20 +9,38 @@ using Networking;
 
 public static class WebServer
 {
+    /// <summary>
+    ///     SQL Connection Login
+    /// </summary>
     private const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
 
+    /// <summary>
+    ///     Http attribute for Good Connection
+    /// </summary>
     private const string HttpOkHeader = "HTTP/1.1 200 OK\r\n" +
                                         "Connection: close\r\n" +
                                         "Content-Type: text/html; " +
                                         "charset=UTF-8\r\n\r\n";
 
+    /// <summary>
+    ///     Http attribute for Bad Connection
+    /// </summary>
     private const string HttpBadHeader =
         "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";
 
-
+    /// <summary>
+    ///     Dictionary for storing PlayerDatabases 
+    /// </summary>
     private static Dictionary<int, PlayerDataBase> _playerList = new Dictionary<int, PlayerDataBase>();
+
+    /// <summary>
+    ///     Dictionary for storing all Games DataBase
+    /// </summary>
     private static Dictionary<int, (string?, string?)> _gamesList = new Dictionary<int, (string?, string?)>();
 
+    /// <summary>
+    ///     Start the Web Server based on the port
+    /// </summary>
     static void Main()
     {
         Console.WriteLine("Starting web server...");
@@ -30,7 +48,11 @@ public static class WebServer
         Console.Read();
     }
 
-
+    /// <summary>
+    ///     Handles incoming HTTP Connection.
+    ///     Parses the request and routes them to the correct http
+    /// </summary>
+    /// <param name="client"></param>
     private static void HandleHttpConnection(NetworkConnection client)
     {
         Console.WriteLine("New client connected!");
@@ -44,6 +66,7 @@ public static class WebServer
         }
         else if (incomingMessage.Contains("GET /games "))
         {
+            _gamesList.Clear();
             AllGames();
             StringBuilder table = new StringBuilder();
             foreach (int id in _gamesList.Keys)
@@ -54,17 +77,16 @@ public static class WebServer
                     _gamesList[id].Item2 + "</td>\n      </tr>\n  </tbody>\n  </table>\n</html>");
             }
 
-            client.Send(HttpOkHeader + table.ToString());
+            client.Send(HttpOkHeader + table);
         }
         else if (incomingMessage.Contains($"GET /games?gid="))
         {
             _playerList.Clear();
             string url = incomingMessage.Split(' ')[1];
             string gameId = url.Split("gid=")[1];
-            int id = int.Parse(gameId.ToString());
-            Console.WriteLine(id);
-            AllPlayer(id);
+            int id = int.Parse(gameId);
 
+            AllPlayer(id);
             StringBuilder table = new StringBuilder();
             table.Append(
                 $"<html>\n  <h3>Stats for Game {id}</h3>\n  <table border=\"1\">\n    <thead>\n      <tr>\n        <td>Player ID</td><td>Player Name</td><td>Max Score</td><td>Enter Time</td><td>Leave Time</td>\n      </tr>\n    </thead>\n    <tbody>");
@@ -76,7 +98,7 @@ public static class WebServer
             }
 
             table.Append(" </tbody>\n  </table>\n</html>");
-            client.Send(HttpOkHeader + table.ToString());
+            client.Send(HttpOkHeader + table);
         }
         else
         {
@@ -86,6 +108,9 @@ public static class WebServer
         client.Disconnect();
     }
 
+    /// <summary>
+    ///     Helper method for getting all the games database from ours database
+    /// </summary>
     private static void AllGames()
     {
         using (MySqlConnection conn = new MySqlConnection(SqlConnection))
@@ -113,6 +138,10 @@ public static class WebServer
         }
     }
 
+    /// <summary>
+    ///     Helper method for getting all the player from the database based on what gameId was selected
+    /// </summary>
+    /// <param name="gameId"></param>
     private static void AllPlayer(int gameId)
     {
         using (MySqlConnection conn = new MySqlConnection(SqlConnection))
