@@ -37,7 +37,7 @@ public class NetworkController
     private int _playerId;
 
     /// <summary>
-    ///     Lock for Locking
+    ///     Lock for Locking critical sections
     /// </summary>
     private object _locker = new object();
 
@@ -47,14 +47,14 @@ public class NetworkController
     public const string SqlConnection = "server=atr.eng.utah.edu;database=u1548814;uid=u1548814;password=bittermelon1";
 
     /// <summary>
-    ///     Use to if the clients who entered before 
+    ///     Used to store the players that have been seen
     /// </summary>
     private Dictionary<int, Player> _playerSeen = new Dictionary<int, Player>();
 
     /// <summary>
-    ///     Keep Track of the GameID
+    ///     Keep Track of the current GameID
     /// </summary>
-    private int gameId = 0;
+    private int _gameId;
 
     /// <summary>
     ///     Connect to the Server
@@ -69,14 +69,14 @@ public class NetworkController
         if (IsConnected())
         {
             String startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-            using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+            using (MySqlConnection conn = new MySqlConnection(SqlConnection)) //inserts a new game into the table with start time
             {
                 conn.Open();
                 MySqlCommand command = conn.CreateCommand();
                 command.CommandText = "INSERT INTO Games (StartTime) VALUES (\"" + startTime + "\");";
                 command.ExecuteNonQuery();
                 command.CommandText = "select LAST_INSERT_ID();";
-                gameId = Convert.ToInt32(command.ExecuteScalar());
+                _gameId = Convert.ToInt32(command.ExecuteScalar());
             }
 
             new Thread(NetworkLoop).Start();
@@ -98,17 +98,17 @@ public class NetworkController
 
         String endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
-        using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+        using (MySqlConnection conn = new MySqlConnection(SqlConnection)) //Updates the endtimes for the game and their player
         {
             conn.Open();
             MySqlCommand command = conn.CreateCommand();
-            command.CommandText = $"UPDATE Games set EndTime = '{endTime}' where ID = {gameId};";
+            command.CommandText = $"UPDATE Games set EndTime = '{endTime}' where ID = {_gameId};";
             command.ExecuteNonQuery();
             foreach (int id in _playerSeen.Keys)
             {
                 Console.Write(id);
                 command.CommandText =
-                    $"UPDATE Players set EndTime = '{endTime}' where ID = {id} and GameID = {gameId};";
+                    $"UPDATE Players set EndTime = '{endTime}' where ID = {id} and GameID = {_gameId};";
                 command.ExecuteNonQuery();
             }
         }
@@ -177,14 +177,13 @@ public class NetworkController
                             if (player.Dc)
                             {
                                 _gameWorld.Player.Remove(player.SnakeiD);
-                                String EndTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-                                Console.Write(EndTime);
-                                using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                String endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                                using (MySqlConnection conn = new MySqlConnection(SqlConnection)) //update the player endtime if a player disconnects
                                 {
                                     conn.Open();
                                     MySqlCommand command = conn.CreateCommand();
                                     command.CommandText =
-                                        $"UPDATE Players set EndTime = '{EndTime}' where ID = {player.SnakeiD} AND GameID = {gameId};";
+                                        $"UPDATE Players set EndTime = '{endTime}' where ID = {player.SnakeiD} AND GameID = {_gameId};";
                                     command.ExecuteNonQuery();
                                 }
                             }
@@ -194,8 +193,8 @@ public class NetworkController
                                 if (!_playerSeen.ContainsKey(player.SnakeiD))
                                 {
                                     _playerSeen[player.SnakeiD] = player;
-                                    String EnterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-                                    using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                    String enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                                    using (MySqlConnection conn = new MySqlConnection(SqlConnection)) // if we have not seen this player make a new entree in players
                                     {
                                         conn.Open();
                                         MySqlCommand command = conn.CreateCommand();
@@ -204,8 +203,8 @@ public class NetworkController
                                             + player.SnakeiD + "\", \""
                                             + player.Name + "\", \""
                                             + player.MaxScore + "\", \""
-                                            + EnterTime + "\", \""
-                                            + gameId + "\");";
+                                            + enterTime + "\", \""
+                                            + _gameId + "\");";
                                         command.ExecuteNonQuery();
                                     }
                                 }
@@ -216,12 +215,12 @@ public class NetworkController
                                     {
                                         lastSeen.MaxScore = player.Score;
                                         _playerSeen[player.SnakeiD] = lastSeen;
-                                        using (MySqlConnection conn = new MySqlConnection(SqlConnection))
+                                        using (MySqlConnection conn = new MySqlConnection(SqlConnection)) //sets maxscore, if max score is exceeded
                                         {
                                             conn.Open();
                                             MySqlCommand command = conn.CreateCommand();
                                             command.CommandText =
-                                                $"UPDATE Players set MaxScore = {_playerSeen[player.SnakeiD].MaxScore} where ID = {player.SnakeiD} AND GameID = {gameId};";
+                                                $"UPDATE Players set MaxScore = {_playerSeen[player.SnakeiD].MaxScore} where ID = {player.SnakeiD} AND GameID = {_gameId};";
                                             command.ExecuteNonQuery();
                                         }
                                     }

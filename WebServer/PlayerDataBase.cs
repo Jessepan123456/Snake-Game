@@ -1,4 +1,4 @@
-﻿namespace WebServerDemo
+﻿namespace WebServer
 {
     public class PlayerDataBase
     {

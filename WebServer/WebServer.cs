@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace WebServerDemo;
+namespace WebServer;
 
 using Networking;
 
@@ -43,7 +42,7 @@ public static class WebServer
     /// </summary>
     static void Main()
     {
-        Console.WriteLine("Starting web server...");
+       Console.WriteLine("Starting web server...");
         Server.StartServer(HandleHttpConnection, 80);
         Console.Read();
     }
@@ -59,17 +58,17 @@ public static class WebServer
         string incomingMessage = client.ReadLine();
         Console.WriteLine(incomingMessage);
 
-        if (incomingMessage.Contains("GET / "))
+        if (incomingMessage.Contains("GET / ")) //homepage
         {
             client.Send(HttpOkHeader +
                         "<html>\n  <h3>Welcome to the Snake Games Database!</h3>\n  <a href=\"/games\">View Games</a>\n</html>");
         }
-        else if (incomingMessage.Contains("GET /games "))
+        else if (incomingMessage.Contains("GET /games ")) //games page
         {
             _gamesList.Clear();
             AllGames();
             StringBuilder table = new StringBuilder();
-            foreach (int id in _gamesList.Keys)
+            foreach (int id in _gamesList.Keys)  //display all game entrees to table
             {
                 table.Append(
                     "<html>\n  <table border=\"1\">\n    <thead>\n      <tr>\n        <td>ID</td><td>Start</td><td>End</td>\n      </tr>\n    </thead>\n    <tbody>\n      <tr>\n        <td><a href=\"/games?gid=" +
@@ -79,8 +78,8 @@ public static class WebServer
 
             client.Send(HttpOkHeader + table);
         }
-        else if (incomingMessage.Contains($"GET /games?gid="))
-        {
+        else if (incomingMessage.Contains($"GET /games?gid=")) //displays stats for user choosen game
+        {                                              
             _playerList.Clear();
             string url = incomingMessage.Split(' ')[1];
             string gameId = url.Split("gid=")[1];
@@ -91,7 +90,7 @@ public static class WebServer
             table.Append(
                 $"<html>\n  <h3>Stats for Game {id}</h3>\n  <table border=\"1\">\n    <thead>\n      <tr>\n        <td>Player ID</td><td>Player Name</td><td>Max Score</td><td>Enter Time</td><td>Leave Time</td>\n      </tr>\n    </thead>\n    <tbody>");
 
-            foreach (int playerId in _playerList.Keys)
+            foreach (int playerId in _playerList.Keys)  //displays each player entree 
             {
                 table.Append(
                     $"<tr>\n        <td>{playerId}</td><td>{_playerList[playerId].PlayerName}</td><td>{_playerList[playerId].MaxScore}</td><td>{_playerList[playerId].EnterTime}</td><td>{_playerList[playerId].EndTime}</td>\n      </tr>");
@@ -100,7 +99,7 @@ public static class WebServer
             table.Append(" </tbody>\n  </table>\n</html>");
             client.Send(HttpOkHeader + table);
         }
-        else
+        else  //error page.
         {
             client.Send(HttpBadHeader + "This webpage doesn't exist!");
         }
@@ -109,7 +108,8 @@ public static class WebServer
     }
 
     /// <summary>
-    ///     Helper method for getting all the games database from ours database
+    ///     Helper method for getting all the games database from ours database and adding said game into a dictionary
+    /// 
     /// </summary>
     private static void AllGames()
     {
@@ -127,7 +127,7 @@ public static class WebServer
                     while (reader!.Read())
                     {
                         _gamesList.TryAdd(Convert.ToInt32(reader["ID"]),
-                            (reader?["StartTime"].ToString(), reader?["EndTime"].ToString()));
+                            (reader["StartTime"].ToString(), reader["EndTime"].ToString()));
                     }
                 }
             }
@@ -139,7 +139,8 @@ public static class WebServer
     }
 
     /// <summary>
-    ///     Helper method for getting all the player from the database based on what gameId was selected
+    ///     Helper method for getting all the player from the database based on what gameId was selected, and mapping
+    /// them to a Object and placed into a dictionary.
     /// </summary>
     /// <param name="gameId"></param>
     private static void AllPlayer(int gameId)
