@@ -19,8 +19,9 @@ A real-time multiplayer Snake game built using a client-server approach. Players
 - Custom background and Custom map
 
 ## How to Run
-Start the server first, then run your clients
-Each client has their own GUI page
+1. Clone the repository
+2. Run the server provided by the folder first
+3. Then run your client
 
 ## What I Learned
 - How to design a client-server for real-time games
